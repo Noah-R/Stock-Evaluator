@@ -17,14 +17,9 @@ for fileName in fileNames[:1]:
 
     df = df.melt(id_vars=["symbol", "calendarYear"])
 
-    """
-    symbol becomes row index
+    df["column"] = df["calendarYear"].astype(str)+"_"+df["variable"]
+    df.drop(labels = ["calendarYear", "variable"], axis = 1, inplace = True)
 
-    calendarYear_variable becomes column name
+    df = pd.pivot(df, index="symbol", columns="column", values="value")
 
-    value becomes value
-
-    result is 98 features per year
-    """
-
-    df.to_csv("example.csv")
+    #final result should be 98 features per year
