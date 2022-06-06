@@ -9,6 +9,8 @@ def getFileNames(folder):
     return fileNames
 
 fileNames = getFileNames("API Archives")
+
+#todo: sort into functions
 for fileName in fileNames[:1]:
     df = pd.read_json(fileName)
 
