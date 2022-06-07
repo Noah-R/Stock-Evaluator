@@ -8,6 +8,5 @@ This will not be a day-trading bot, it will not learn from market price history,
 
 To Do:
 - Efficiently build dataset
-    - Include stock price/market cap
-    - Stack completed entries
+    - Include market cap
     - Sort preprocessor into functions

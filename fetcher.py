@@ -7,13 +7,17 @@ def fetchStatements(symbols, queries):
 
     for symbol in symbols:
         for query in queries:
-            url = "https://financialmodelingprep.com/api/v3/"+query["endpoint"]+"/"+symbol+"?"+query["params"]+"&apikey="+apikey
+            endpoint = query["endpoint"]
+            params = query["params"]
+
+            url = "https://financialmodelingprep.com/api/v3/"+endpoint+"/"+symbol+"?"+params+"&apikey="+apikey
             
             r = http.request('GET', url)
 
-            target = open("API Archives/"+symbol+"-"+query["endpoint"]+".json", "w")
+            target = open("API Archives/"+symbol+"-"+endpoint+".json", "w")
             target.write(r.data.decode('utf8'))
             target.close()
+            
             filesWritten+=1
     
     return filesWritten
