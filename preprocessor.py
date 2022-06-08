@@ -1,44 +1,44 @@
-import os
 import pandas as pd
+import utils
 
-def getFileNames(folder):
-    fileNames = []
-    for file in os.listdir(folder):
-        filename = os.fsdecode(file)
-        fileNames.append(folder+"/"+filename)
-    return fileNames
+def transformFinancialStatement(df):
+    dropCols = ["date", "reportedCurrency", "cik", "fillingDate", "acceptedDate", "period", "link", "finalLink"]
+    df.drop(labels = dropCols, axis = 1, inplace = True)
 
-symbolList = open("stock_symbols.txt", "r")
-symbols = []
-for line in symbolList:
-        symbols.append(str(line).strip().upper())
-        
-statements = ['balance-sheet', 'income-statement', 'cash-flow']
+    df = df.melt(id_vars=["symbol", "calendarYear"])
 
-masterdf=None
+    df["column"] = df["calendarYear"].astype(str)+"_"+df["variable"]
+    df.drop(labels = ["calendarYear", "variable"], axis = 1, inplace = True)
 
-for symbol in symbols:
-    rowdf = None
-    for statement in statements:
-        fileName = "API Archives/"+symbol+"-"+statement+".json"
-        df = pd.read_json(fileName)
+    df = pd.pivot(df, index="symbol", columns="column", values="value")
 
-        dropCols = ["date", "reportedCurrency", "cik", "fillingDate", "acceptedDate", "period", "link", "finalLink"]
-        df.drop(labels = dropCols, axis = 1, inplace = True)
+    return df
 
-        df = df.melt(id_vars=["symbol", "calendarYear"])
 
-        df["column"] = df["calendarYear"].astype(str)+"_"+df["variable"]
-        df.drop(labels = ["calendarYear", "variable"], axis = 1, inplace = True)
+def buildDataset(symbols, features, target):
+    masterdf=None
 
-        df = pd.pivot(df, index="symbol", columns="column", values="value")
+    for symbol in symbols:
+        fileName = "API Archives/"+symbol+"-"+target+".json"
+        rowdf = pd.read_json(fileName)
+        rowdf.drop(labels = "date", axis = 1, inplace = True)
 
-        if(rowdf is None):
-            rowdf=df
-        else:
+        for statement in features:
+            fileName = "API Archives/"+symbol+"-"+statement+".json"
+            df = pd.read_json(fileName)
+            df = transformFinancialStatement(df)
+
             rowdf = rowdf.merge(df, how='outer', on='symbol')
 
-    masterdf = pd.concat([masterdf, rowdf])
+        masterdf = pd.concat([masterdf, rowdf])
 
-masterdf.to_csv("results.csv")
-print("done")
+    return masterdf
+
+symbols = utils.readSymbols("stock_symbols.txt")
+        
+features = ['balance-sheet', 'income-statement', 'cash-flow']
+target = 'market-capitalization'
+
+dataset = buildDataset(symbols, features, target)
+dataset.to_csv("results.csv", index=False)
+print("Successfully built dataset with "+str(len(dataset))+" examples")

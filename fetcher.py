@@ -1,4 +1,5 @@
 import urllib3
+import utils
 
 def fetchStatements(symbols, queries):
     apikey = open("apikey.txt", "r").read()
@@ -23,10 +24,7 @@ def fetchStatements(symbols, queries):
     return filesWritten
 
 
-symbolList = open("stock_symbols.txt", "r")
-symbols = []
-for line in symbolList:
-        symbols.append(str(line).strip().upper())
+symbols = utils.readSymbols("stock_symbols.txt")
 
 queries = [
     {"endpoint":"income-statement", "params":"limit=120"},
