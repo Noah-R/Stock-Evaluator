@@ -14,8 +14,12 @@ def transformFinancialStatement(df):
 
     return df
 
+def prepareForTraining(df):
+    df.drop(labels = "symbol", axis = 1, inplace = True)
+    df = df/1000000
+    return df
 
-def buildDataset(symbols, features, target):
+def buildDataset(symbols, features, target, prepare=True):
     masterdf=None
 
     for symbol in symbols:
@@ -32,6 +36,8 @@ def buildDataset(symbols, features, target):
 
         masterdf = pd.concat([masterdf, rowdf])
 
+    if (prepare):
+        masterdf = prepareForTraining(masterdf)
     return masterdf
 
 symbols = utils.readSymbols("stock_symbols.txt")

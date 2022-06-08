@@ -2,3 +2,4 @@
 *.csv
 apikey.txt
 __pycache__
+models/*
