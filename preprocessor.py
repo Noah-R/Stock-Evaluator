@@ -1,9 +1,12 @@
 import pandas as pd
 import utils
 
-def transformFinancialStatement(df):
+def transformFinancialStatement(df, startYear, endYear):
     dropCols = ["date", "reportedCurrency", "cik", "fillingDate", "acceptedDate", "period", "link", "finalLink"]
     df.drop(labels = dropCols, axis = 1, inplace = True)
+
+    df = df[df["calendarYear"]<=endYear]
+    df = df[df["calendarYear"]>=startYear]
 
     df = df.melt(id_vars=["symbol", "calendarYear"])
 
@@ -19,7 +22,7 @@ def prepareForTraining(df):
     df = df/1000000
     return df
 
-def buildDataset(symbols, features, target, prepare=True):
+def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
     masterdf=None
 
     for symbol in symbols:
@@ -30,7 +33,7 @@ def buildDataset(symbols, features, target, prepare=True):
         for statement in features:
             fileName = "API Archives/"+symbol+"-"+statement+".json"
             df = pd.read_json(fileName)
-            df = transformFinancialStatement(df)
+            df = transformFinancialStatement(df, startYear, endYear)
 
             rowdf = rowdf.merge(df, how='outer', on='symbol')
 
@@ -45,6 +48,6 @@ symbols = utils.readSymbols("stock_symbols.txt")
 features = ['balance-sheet', 'income-statement', 'cash-flow']
 target = 'market-capitalization'
 
-dataset = buildDataset(symbols, features, target)
+dataset = buildDataset(symbols, features, target, 2018, 2021)
 dataset.to_csv("results.csv", index=False)
-print("Successfully built dataset with "+str(len(dataset))+" examples")
+print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")

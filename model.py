@@ -3,8 +3,8 @@ import pandas as pd
 import tensorflow as tf
 
 trainingdata = pd.read_csv("results.csv", header=0)
-testdata = trainingdata[24:]
-trainingdata = trainingdata[:24]
+testdata = trainingdata[20:]
+trainingdata = trainingdata[20:25]
 
 
 target="marketCap"
