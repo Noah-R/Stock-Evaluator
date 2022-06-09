@@ -3,19 +3,18 @@ import pandas as pd
 import tensorflow as tf
 
 trainingdata = pd.read_csv("results.csv", header=0)
-testdata = trainingdata[20:]
-trainingdata = trainingdata[20:25]
-
+testdata = trainingdata[20:25]
+trainingdata = trainingdata[:20]
 
 target="marketCap"
 learningrate=.001
-batchsize=30
-epochs=20
-l2rate=.00015
-dropoutrate=0.1
-earlyStoppingPatience=10
-layersize=64
-date="6_8_2022"
+batchsize=20
+epochs=100
+l2rate=.000#15
+dropoutrate=0#.1
+earlyStoppingPatience=20
+layersize=128
+date="6_9_2022"
 
 features=[]
 
@@ -29,12 +28,12 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Dropout(rate=dropoutrate),
     tf.keras.layers.Dense(units=layersize, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(l=l2rate), name='Hidden2'),
     tf.keras.layers.Dropout(rate=dropoutrate),
-    tf.keras.layers.Dense(units=1, activation=tf.sigmoid, name="Output")
+    tf.keras.layers.Dense(units=1, activation='linear', name="Output")
 ])
 
 model.compile(
     optimizer=tf.keras.optimizers.RMSprop(learning_rate=learningrate),
-    loss=tf.keras.losses.BinaryCrossentropy(),
+    loss=tf.keras.losses.MeanSquaredError(),
     metrics=["mse"]
 )
 
