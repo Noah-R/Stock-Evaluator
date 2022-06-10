@@ -24,13 +24,13 @@ def fetchStatements(symbols, queries):
     return filesWritten
 
 
-symbols = utils.readSymbols("stock_symbols.txt")
+symbols = utils.readSymbols("symbols.txt")
 
 queries = [
     {"endpoint":"income-statement", "params":"limit=120"},
     {"endpoint":"balance-sheet", "params":"limit=120"},
     {"endpoint":"cash-flow", "params":"limit=120"},
-    {"endpoint":"historical-price-full", "params":"from=2022-01-03&to=2022-01-03"},
+    #{"endpoint":"historical-price-full", "params":"from=2022-01-03&to=2022-01-03"},
     {"endpoint":"market-captialization", "params":"limit=120"}
     ]
 

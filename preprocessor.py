@@ -7,6 +7,9 @@ def transformFinancialStatement(df, startYear, endYear):
 
     df = df[df["calendarYear"]<=endYear]
     df = df[df["calendarYear"]>=startYear]
+    #placeholder logic, for use if companies with short histories eventually need to be filtered out
+    if(startYear not in set(df["calendarYear"])):
+        print(df["symbol"].iloc[0]+" does not have financial statements from "+str(startYear))
 
     df = df.melt(id_vars=["symbol", "calendarYear"])
 
@@ -43,7 +46,7 @@ def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
         masterdf = prepareForTraining(masterdf)
     return masterdf
 
-symbols = utils.readSymbols("stock_symbols.txt")
+symbols = utils.readSymbols("symbols.txt")
         
 features = ['balance-sheet', 'income-statement', 'cash-flow']
 target = 'market-capitalization'

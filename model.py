@@ -14,7 +14,7 @@ l2rate=.000#15
 dropoutrate=0#.1
 earlyStoppingPatience=20
 layersize=128
-date="6_9_2022"
+date="6_10_2022"
 
 features=[]
 
