@@ -24,3 +24,18 @@ def symbolOverlap(file1, file2):
         if symbol in b:
             overlap.append(symbol)
     return overlap
+
+def symbolMerge(fileNames):
+    mergedSymbols = []
+    for name in fileNames:
+        symbols = readSymbols(name)
+        for symbol in symbols:
+            if symbol not in mergedSymbols:
+                mergedSymbols.append(symbol)
+    return mergedSymbols
+
+def writeSymbols(symbols, target):
+    f = open(target, "w")
+    for symbol in symbols:
+        f.write(symbol+"\n")
+    f.close()

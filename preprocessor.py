@@ -1,5 +1,6 @@
 import pandas as pd
 import utils
+import os
 
 def transformFinancialStatement(df, startYear, endYear):
     dropCols = ["date", "reportedCurrency", "cik", "fillingDate", "acceptedDate", "period", "link", "finalLink"]
@@ -7,7 +8,7 @@ def transformFinancialStatement(df, startYear, endYear):
 
     df = df[df["calendarYear"]<=endYear]
     df = df[df["calendarYear"]>=startYear]
-    #placeholder logic, for use if companies with short histories eventually need to be filtered out
+    #todo placeholder logic, for use if companies with short histories eventually need to be filtered out
     if(startYear not in set(df["calendarYear"])):
         print(df["symbol"].iloc[0]+" does not have financial statements from "+str(startYear))
 
@@ -30,12 +31,17 @@ def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
 
     for symbol in symbols:
         fileName = "API Archives/"+symbol+"-"+target+".json"
+        if not os.path.exists(fileName):#todo cleanup
+            continue
         rowdf = pd.read_json(fileName)
         rowdf.drop(labels = "date", axis = 1, inplace = True)
 
         for statement in features:
             fileName = "API Archives/"+symbol+"-"+statement+".json"
-            df = pd.read_json(fileName)
+            try:#todo cleanup
+                df = pd.read_json(fileName)
+            except:
+                continue
             df = transformFinancialStatement(df, startYear, endYear)
 
             rowdf = rowdf.merge(df, how='outer', on='symbol')
