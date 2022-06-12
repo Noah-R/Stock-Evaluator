@@ -7,8 +7,9 @@ This will not be a day-trading bot, it will not learn from market price history,
 ---
 
 Short term to do:
-    - Run fetcher for last few missing files
-    - Figure out which files return 404
-    - Build out dataset of examples with complete data
-    - Cleanup todos
+    - Handle JSON with multiple entries from same year
+    - Cleanup try/excepts
+    - Refetch problem data
+        - ABNB balance-sheet-statement
+        - LRCX
     - Get all market capitalizations on consistent date

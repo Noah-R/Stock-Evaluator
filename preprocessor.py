@@ -8,9 +8,9 @@ def transformFinancialStatement(df, startYear, endYear):
 
     df = df[df["calendarYear"]<=endYear]
     df = df[df["calendarYear"]>=startYear]
-    #todo placeholder logic, for use if companies with short histories eventually need to be filtered out
-    if(startYear not in set(df["calendarYear"])):
-        print(df["symbol"].iloc[0]+" does not have financial statements from "+str(startYear))
+    #placeholder logic, for use if companies with short histories eventually need to be filtered out
+    #if(startYear not in set(df["calendarYear"])):
+    #    print(df["symbol"].iloc[0]+" does not have financial statements from "+str(startYear))
 
     df = df.melt(id_vars=["symbol", "calendarYear"])
 
@@ -31,22 +31,20 @@ def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
 
     for symbol in symbols:
         fileName = "API Archives/"+symbol+"-"+target+".json"
-        if not os.path.exists(fileName):#todo cleanup
-            continue
         rowdf = pd.read_json(fileName)
         rowdf.drop(labels = "date", axis = 1, inplace = True)
 
         for statement in features:
             fileName = "API Archives/"+symbol+"-"+statement+".json"
-            try:#todo cleanup
-                df = pd.read_json(fileName)
-            except:
-                continue
+            df = pd.read_json(fileName)
             df = transformFinancialStatement(df, startYear, endYear)
 
             rowdf = rowdf.merge(df, how='outer', on='symbol')
 
-        masterdf = pd.concat([masterdf, rowdf])
+        try:
+            masterdf = pd.concat([masterdf, rowdf])
+        except:
+            masterdf = None
 
     if (prepare):
         masterdf = prepareForTraining(masterdf)
@@ -54,9 +52,9 @@ def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
 
 symbols = utils.readSymbols("symbols.txt")
         
-features = ['balance-sheet', 'income-statement', 'cash-flow']
+features = ['balance-sheet-statement', 'income-statement', 'cash-flow-statement']
 target = 'market-capitalization'
 
-dataset = buildDataset(symbols, features, target, 2018, 2021)
+dataset = buildDataset(symbols, features, target, 2018, 2021, prepare=False)#todo prepare True before training model
 dataset.to_csv("results.csv", index=False)
 print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")

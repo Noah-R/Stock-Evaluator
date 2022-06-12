@@ -22,7 +22,7 @@ def fetchStatements(symbols, queries, overwrite=False):
 
                 target.write(r.data.decode('utf8'))
                 target.close()
-                
+
                 filesWritten+=1
     
     return filesWritten
@@ -32,8 +32,8 @@ symbols = utils.readSymbols("symbols.txt")
 
 queries = [
     {"endpoint":"income-statement", "params":"limit=120"},
-    {"endpoint":"balance-sheet", "params":"limit=120"},
-    {"endpoint":"cash-flow", "params":"limit=120"},
+    {"endpoint":"balance-sheet-statement", "params":"limit=120"},
+    {"endpoint":"cash-flow-statement", "params":"limit=120"},
     #{"endpoint":"historical-price-full", "params":"from=2022-01-03&to=2022-01-03"},
     {"endpoint":"market-capitalization", "params":"limit=120"}
     ]
