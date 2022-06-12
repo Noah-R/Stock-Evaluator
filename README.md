@@ -7,6 +7,8 @@ This will not be a day-trading bot, it will not learn from market price history,
 ---
 
 Short term to do:
+
+    - Search API Archives for error messages
     - Handle JSON with multiple entries from same year
     - Cleanup try/excepts
     - Refetch problem data
