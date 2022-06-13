@@ -8,9 +8,12 @@ def transformFinancialStatement(df, startYear, endYear):
 
     df = df[df["calendarYear"]<=endYear]
     df = df[df["calendarYear"]>=startYear]
-    #placeholder logic, for use if companies with short histories eventually need to be filtered out
-    #if(startYear not in set(df["calendarYear"])):
-    #    print(df["symbol"].iloc[0]+" does not have financial statements from "+str(startYear))
+    df["calendarYear"] = df["calendarYear"].astype("int64")
+    df = df.drop_duplicates('calendarYear')
+
+    #for year in range(startYear, endYear+1):
+    #    if(year not in set(df["calendarYear"])):
+    #        print(df["symbol"].iloc[0]+" is missing a financial statement from "+str(year))
 
     df = df.melt(id_vars=["symbol", "calendarYear"])
 
@@ -27,7 +30,7 @@ def prepareForTraining(df):
     return df
 
 def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
-    masterdf=None
+    masterdf = pd.DataFrame()
 
     for symbol in symbols:
         fileName = "API Archives/"+symbol+"-"+target+".json"
@@ -41,11 +44,8 @@ def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
 
             rowdf = rowdf.merge(df, how='outer', on='symbol')
 
-        try:
-            masterdf = pd.concat([masterdf, rowdf])
-        except:
-            masterdf = None
-
+        masterdf = pd.concat([masterdf, rowdf])
+        
     if (prepare):
         masterdf = prepareForTraining(masterdf)
     return masterdf
@@ -56,5 +56,6 @@ features = ['balance-sheet-statement', 'income-statement', 'cash-flow-statement'
 target = 'market-capitalization'
 
 dataset = buildDataset(symbols, features, target, 2018, 2021, prepare=False)#todo prepare True before training model
+#dataset = dataset.sort_index(axis=1)#uncomment to alphabetize columns
 dataset.to_csv("results.csv", index=False)
 print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")
