@@ -6,8 +6,5 @@ This will not be a day-trading bot, it will not learn from market price history,
 
 ---
 
-Short term to do:
-
-    - Cleanup dataset issues
-        - Cause of columns 2019_inventory/2019_inventory_x/2019_inventory_y
+To do:
     - Get all market capitalizations on consistent date
