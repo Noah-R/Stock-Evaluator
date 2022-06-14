@@ -6,7 +6,7 @@ fileName = 'models\model_6_9_2022'
 
 model = tf.keras.models.load_model(fileName)
 
-data = pd.read_csv("results.csv", header=0)[25:]
+data = pd.read_csv("results.csv", header=0)[100:]
 
 target="marketCap"
 

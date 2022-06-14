@@ -7,4 +7,6 @@ This will not be a day-trading bot, it will not learn from market price history,
 ---
 
 To do:
+
+    - Run model, run predict
     - Get all market capitalizations on consistent date
