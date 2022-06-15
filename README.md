@@ -6,7 +6,8 @@ This will not be a day-trading bot, it will not learn from market price history,
 
 ---
 
-To do:
+Data to collect:
 
-    - Run model, run predict
+    - Get data for more symbols
+    - Get older data from premium API
     - Get all market capitalizations on consistent date
