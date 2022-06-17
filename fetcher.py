@@ -35,7 +35,7 @@ queries = [
     {"endpoint":"balance-sheet-statement", "params":"limit=120"},
     {"endpoint":"cash-flow-statement", "params":"limit=120"},
     #{"endpoint":"historical-price-full", "params":"from=2022-01-03&to=2022-01-03"},
-    {"endpoint":"market-capitalization", "params":"limit=120"}
+    {"endpoint":"historical-market-capitalization", "params":"limit=120"}
     ]
 
 result = fetchStatements(symbols = symbols, queries = queries)

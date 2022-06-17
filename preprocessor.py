@@ -25,6 +25,14 @@ def transformFinancialStatement(df, startYear, endYear, prefix=""):
 
     return df
 
+def transformMarketCaps(df):
+    df = pd.pivot(df, index="symbol", columns="date", values="marketCap")
+    df = df.reset_index()
+    df = df.rename(columns={df.columns[1]: 'marketCap'})
+    df = df.rename(columns={df.columns[-1]: 'futureMarketCap'})
+    df.drop(columns = df.keys()[2:-1], inplace = True)
+    return df
+
 def prepareForTraining(df):
     df.drop(labels = "symbol", axis = 1, inplace = True)
     df = df/1000000
@@ -38,14 +46,14 @@ def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
     for symbol in symbols:
         fileName = "API Archives/"+symbol+"-"+target+".json"
         rowdf = pd.read_json(fileName)
-        rowdf.drop(labels = "date", axis = 1, inplace = True)
+        rowdf = transformMarketCaps(rowdf)
 
         for statement in features:
             fileName = "API Archives/"+symbol+"-"+statement+".json"
             df = pd.read_json(fileName)
             df = transformFinancialStatement(df, startYear, endYear, prefix = statement[:3]+"_")
 
-            rowdf = rowdf.merge(df, how='outer', on='symbol')
+            rowdf = rowdf.merge(df, how='outer', on='symbol')   
 
         masterdf = pd.concat([masterdf, rowdf])
         
@@ -55,7 +63,7 @@ def buildDataset(symbols, features, target, startYear, endYear, prepare=True):
 
 symbols = utils.readSymbols("symbols.txt")
 features = ['balance-sheet-statement', 'income-statement', 'cash-flow-statement']
-target = 'market-capitalization'
+target = 'historical-market-capitalization'
 startYear = 2019
 endYear = 2021
 prepare = True
