@@ -38,6 +38,8 @@ queries = [
     {"endpoint":"historical-market-capitalization", "params":"limit=120"}
     ]
 
+input("Input any text to attempt "+str(len(symbols)*len(queries))+" API requests")
+
 result = fetchStatements(symbols = symbols, queries = queries)
 
 print("Successfully wrote "+str(result)+" files")
