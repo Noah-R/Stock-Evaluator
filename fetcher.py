@@ -11,10 +11,11 @@ def fetchStatements(symbols, queries, overwrite=False):
         for query in queries:
             endpoint = query["endpoint"]
             params = query["params"]
+            name = query["name"]
 
             url = "https://financialmodelingprep.com/api/v3/"+endpoint+"/"+symbol+"?"+params+"&apikey="+apikey
 
-            fileName = "API Archives/"+symbol+"-"+endpoint+".json"
+            fileName = "API Archives/"+symbol+"_"+name+".json"
             
             if(overwrite or not os.path.exists(fileName)):
                 r = http.request('GET', url)
@@ -29,13 +30,16 @@ def fetchStatements(symbols, queries, overwrite=False):
 
 
 symbols = utils.readSymbols("symbols.txt")
+labelDate = "2022-01-03"
+futureDate = "2022-06-01"
 
 queries = [
-    {"endpoint":"income-statement", "params":"limit=120"},
-    {"endpoint":"balance-sheet-statement", "params":"limit=120"},
-    {"endpoint":"cash-flow-statement", "params":"limit=120"},
-    #{"endpoint":"historical-price-full", "params":"from=2022-01-03&to=2022-01-03"},
-    {"endpoint":"historical-market-capitalization", "params":"limit=120"}
+    {"endpoint":"income-statement", "params":"limit=120", "name":"income_statement"},
+    {"endpoint":"balance-sheet-statement", "params":"limit=120", "name":"balance_sheet"},
+    {"endpoint":"cash-flow-statement", "params":"limit=120", "name":"cash_flow"},
+    {"endpoint":"historical-price-full", "params":"from="+labelDate+"&to="+labelDate, "name":"price_label"},
+    {"endpoint":"historical-price-full", "params":"from="+futureDate+"&to="+futureDate, "name":"price_future"},
+    #{"endpoint":"historical-market-capitalization", "params":"limit=120", "name":"market_cap"}
     ]
 
 input("Input any text to attempt "+str(len(symbols)*len(queries))+" API requests")

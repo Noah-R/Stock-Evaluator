@@ -3,7 +3,7 @@ import pandas as pd
 import tensorflow as tf
 import datetime
 
-def predict(model, data, target, future):
+def predict(model, data, target, future):#todo cleanup/functionize
     features = {name: np.array(value) for name, value in data.items()}
     labels = np.array(features.pop(target))
     actuals = np.array(features.pop(future))
@@ -18,7 +18,7 @@ def predict(model, data, target, future):
         label = labels[i]
         actual = actuals[i]
         holding = round(pred/label*1000, 2)
-        #todo check correctness of this math, buy shares and figure profit from share price rather than mkt cap
+        #todo check correctness of this math
         profit = round(actual/label*holding-holding, 2)
         print("Predicted: "+str(pred))
         print("Market value: "+str(label))
