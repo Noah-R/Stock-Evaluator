@@ -2,6 +2,13 @@ import urllib3
 import utils
 import os
 
+def fetchStatement(url, fileName, http):
+    r = http.request('GET', url)
+    target = open(fileName, "w")
+
+    target.write(r.data.decode('utf8'))
+    target.close()
+
 def fetchStatements(symbols, queries, overwrite=False):
     apikey = open("apikey.txt", "r").read()
     http = urllib3.PoolManager()
@@ -18,12 +25,7 @@ def fetchStatements(symbols, queries, overwrite=False):
             fileName = "API Archives/"+symbol+"_"+name+".json"
             
             if(overwrite or not os.path.exists(fileName)):
-                r = http.request('GET', url)
-                target = open(fileName, "w")
-
-                target.write(r.data.decode('utf8'))
-                target.close()
-
+                fetchStatement(url, fileName, http)
                 filesWritten+=1
     
     return filesWritten

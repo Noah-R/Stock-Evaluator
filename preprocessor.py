@@ -2,7 +2,10 @@ import pandas as pd
 import utils
 import os
 
-def transformFinancialStatement(df, startYear, endYear, statement):
+def parseFinancialStatement(symbol, statement, startYear, endYear):
+    fileName = "API Archives/"+symbol+"_"+statement+".json"
+    df = pd.read_json(fileName)
+
     dropCols = ["date", "reportedCurrency", "cik", "fillingDate", "acceptedDate", "period", "link", "finalLink"]
     df.drop(labels = dropCols, axis = 1, inplace = True)
 
@@ -25,43 +28,52 @@ def transformFinancialStatement(df, startYear, endYear, statement):
 
     return df
 
+def parsePrice(symbol, name):
+    fileName = "API Archives/"+symbol+"_"+name+".json"
+    df = pd.read_json(fileName)
+
+    if("historical" in df):
+        df[name] = df["historical"].apply(lambda x: round(x["close"], 2))
+        df.drop(columns="historical", inplace=True)
+
+    return df
+
 def transformMarketCaps(df):
+    #deprecated, if re-employing should create parameter to choose current/future date
     df = pd.pivot(df, index="symbol", columns="date", values="marketCap")
-    #todo parameter to choose current/future date
     df = df.reset_index()
     df = df.rename(columns={df.columns[1]: 'marketCap'})
     df = df.rename(columns={df.columns[-1]: 'futureMarketCap'})
     df.drop(columns = df.keys()[2:-1], inplace = True)
     return df
 
-def transformPrice(df):
-    return df
-
 def prepareForTraining(df):
+    coefficient = 1000000
+
     df.drop(labels = "symbol", axis = 1, inplace = True)
-    df = df/1000000
     df = df.dropna(thresh=3)
     df = df.fillna(value=0)
+
+    df["price_label"] = df["price_label"] * coefficient
+    df["price_future"] = df["price_future"] * coefficient
+    df = df/coefficient
+
     return df
 
-def buildDataset(symbols, features, target, startYear, endYear, prepare=True):#todo cleanup/functionize
+def buildDataset(symbols, features, target, future, startYear, endYear, prepare=True):
     masterdf = pd.DataFrame()
 
     for symbol in symbols:
-        fileName = "API Archives/"+symbol+"_"+target+".json"
-        rowdf = pd.read_json(fileName)
-        rowdf = transformPrice(rowdf)
+        rowdf = parsePrice(symbol, target)
+        df = parsePrice(symbol, future)
 
-        fileName = "API Archives/"+symbol+"_"+future+".json"
-        df = pd.read_json(fileName)
-        df = transformPrice(df)
+        if(target not in rowdf or future not in df):
+            continue
 
         rowdf = rowdf.merge(df, how='outer', on='symbol')   
 
         for statement in features:
-            fileName = "API Archives/"+symbol+"_"+statement+".json"
-            df = pd.read_json(fileName)
-            df = transformFinancialStatement(df, startYear, endYear, statement)
+            df = parseFinancialStatement(symbol, statement, startYear, endYear)
 
             rowdf = rowdf.merge(df, how='outer', on='symbol')   
 

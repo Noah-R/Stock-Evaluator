@@ -48,14 +48,13 @@ def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, 
     model.save("models/model-"+date)
 
 trainingdata = pd.read_csv("results.csv", header=0)
-trainingdata.drop(columns="futureMarketCap", inplace=True)
-#todo proper train/test/predict split
+trainingdata.drop(columns="price_future", inplace=True)
 #trainingdata = trainingdata.sample(frac=1, random_state=1).reset_index()#uncomment to shuffle before split
 testdata = trainingdata[80:100]
 trainingdata = trainingdata[:80]
 
-target = "marketCap"
-learningrate = .0001
+target = "price_label"
+learningrate = .00001
 batchsize = 80
 epochs = 100
 l2rate = .00015
