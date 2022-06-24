@@ -1,4 +1,5 @@
 import os
+import json
 
 def readSymbols(filename):
     symbolList = open(filename, "r")
@@ -39,3 +40,10 @@ def writeSymbols(symbols, target):
     for symbol in symbols:
         f.write(symbol+"\n")
     f.close()
+
+def loadDates():
+    #deprecated, for use fetching market return on the fly
+    f = open("dates.txt", "r")
+    t = json.loads(f.read())
+    f.close()
+    return t["labelDate"], t["futureDate"]

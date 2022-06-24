@@ -2,6 +2,16 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import datetime
+import utils
+
+def parsePrice(symbol, name):
+    fileName = "API Archives/"+symbol+"_"+name+".json"
+    df = pd.read_json(fileName)
+
+    if("historical" in df):
+        return df["historical"].apply(lambda x: round(x["close"], 2))[0]
+
+    return 0
 
 def predict(model, data, target, future):
     features = {name: np.array(value) for name, value in data.items()}
@@ -30,11 +40,13 @@ def predict(model, data, target, future):
         performance += profit
     
     print("Model percent return: "+str(round(100*(performance/investment), 2)))
-    mktEnd = 1
-    mktStart = 1
+    mktEnd = parsePrice("benchmark", "futureDate")
+    mktStart = parsePrice("benchmark", "labelDate")
     print("Market percent return: "+str(round(100*(mktEnd/mktStart-1), 2)))
 
-fileName = 'models\model-'+str(datetime.date.today())
+date = str(datetime.date.today())
+date = "2022-06-22"#date override
+fileName = 'models\model-'+date
 model = tf.keras.models.load_model(fileName)
 data = pd.read_csv("results.csv", header=0)[100:]
 target = "price_label"
