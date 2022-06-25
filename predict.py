@@ -22,8 +22,8 @@ def getWeights(preds, labels):
         
     return weights
 
-def parsePrice(symbol, name):
-    fileName = "API Archives/"+symbol+"_"+name+".json"
+def parsePrice(symbol, date):
+    fileName = "API Archives/"+symbol+"_price_"+date+".json"
     df = pd.read_json(fileName)
 
     if("historical" in df):
@@ -53,12 +53,12 @@ def predict(model, data, target, future):
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
-    mktEnd = parsePrice("benchmark", "futureDate")
-    mktStart = parsePrice("benchmark", "labelDate")
+    mktEnd = parsePrice("benchmark", "2022-06-01")
+    mktStart = parsePrice("benchmark", "2022-01-03")
     print("Market percent return: "+str(round(100*(mktEnd/mktStart-1), 2)))
 
 date = str(datetime.date.today())
-date = "2022-06-22"#date override
+#date = "2022-06-25"#date override
 fileName = 'models\model-'+date
 model = tf.keras.models.load_model(fileName)
 data = pd.read_csv("results.csv", header=0)[100:]

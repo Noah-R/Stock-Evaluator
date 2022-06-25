@@ -47,10 +47,14 @@ def transformMarketCaps(df):
     df.drop(columns = df.keys()[2:-1], inplace = True)
     return df
 
-def prepareForTraining(df):
+def prepareForTraining(df, coefficient = 1000000, columnsToExclude = []):
     df.drop(labels = "symbol", axis = 1, inplace = True)
     df = df.dropna(thresh=3)
     df = df.fillna(value=0)
+
+    for column in columnsToExclude:
+        df[column] = df[column] * coefficient
+    df = df/coefficient
 
     return df
 
@@ -74,7 +78,7 @@ def buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, p
         masterdf = pd.concat([masterdf, rowdf])
         
     if (prepare):
-        masterdf = prepareForTraining(masterdf)
+        masterdf = prepareForTraining(masterdf, columnsToExclude = ["price_2022-01-03", "price_2022-06-01"])
     return masterdf
 
 symbols = utils.readSymbols("symbols.txt")
