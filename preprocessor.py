@@ -28,12 +28,12 @@ def parseFinancialStatement(symbol, statement, startYear, endYear):
 
     return df
 
-def parsePrice(symbol, name):
-    fileName = "API Archives/"+symbol+"_"+name+".json"
+def parsePrice(symbol, date):
+    fileName = "API Archives/"+symbol+"_price_"+date+".json"
     df = pd.read_json(fileName)
 
     if("historical" in df):
-        df[name] = df["historical"].apply(lambda x: round(x["close"], 2))
+        df["price_"+date] = df["historical"].apply(lambda x: round(x["close"], 2))
         df.drop(columns="historical", inplace=True)
 
     return df
@@ -48,26 +48,20 @@ def transformMarketCaps(df):
     return df
 
 def prepareForTraining(df):
-    coefficient = 1000000
-
     df.drop(labels = "symbol", axis = 1, inplace = True)
     df = df.dropna(thresh=3)
     df = df.fillna(value=0)
 
-    df["price_label"] = df["price_label"] * coefficient
-    df["price_future"] = df["price_future"] * coefficient
-    df = df/coefficient
-
     return df
 
-def buildDataset(symbols, features, target, future, startYear, endYear, prepare=True):
+def buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, prepare=True):
     masterdf = pd.DataFrame()
 
     for symbol in symbols:
-        rowdf = parsePrice(symbol, target)
-        df = parsePrice(symbol, future)
+        rowdf = parsePrice(symbol, labelDate)
+        df = parsePrice(symbol, futureDate)
 
-        if(target not in rowdf or future not in df):
+        if("price_"+labelDate not in rowdf or "price_"+futureDate not in df):
             continue
 
         rowdf = rowdf.merge(df, how='outer', on='symbol')   
@@ -85,13 +79,13 @@ def buildDataset(symbols, features, target, future, startYear, endYear, prepare=
 
 symbols = utils.readSymbols("symbols.txt")
 features = ['balance_sheet', 'income_statement', 'cash_flow']
-target = 'price_label'
-future = 'price_future'
+labelDate = "2022-01-03"
+futureDate = "2022-06-01"
 startYear = 2019
 endYear = 2021
 prepare = True
 
-dataset = buildDataset(symbols, features, target, future, startYear, endYear, prepare = prepare)
+dataset = buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, prepare = prepare)
 #dataset = dataset.sort_index(axis=1)#uncomment to alphabetize columns
 dataset.to_csv("results.csv", index=False)
 print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")

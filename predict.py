@@ -10,6 +10,18 @@ def strategy(pred, label):
         return 0
     return (pred/label)**2
 
+def getWeights(preds, labels):
+    weights=[]
+
+    for i in range(len(preds)):
+        pred = preds[i][0]
+        label = labels[i]
+        
+        weight = strategy(pred, label)
+        weights.append(weight)
+        
+    return weights
+
 def parsePrice(symbol, name):
     fileName = "API Archives/"+symbol+"_"+name+".json"
     df = pd.read_json(fileName)
@@ -25,18 +37,11 @@ def predict(model, data, target, future):
     futures = np.array(features.pop(future))
 
     preds = model.predict(x=features, verbose=1)
-    weights = []
-    
-    for i in range(len(preds)):
-        pred = preds[i][0]
-        actual = labels[i]
-        
-        weight = strategy(pred, actual)
-        weights.append(weight)
-    
+    weights = getWeights(preds, labels)
     weightTotal = sum(weights)
+
     investment = 10000
-    cashout = 0
+    cashout = investment
 
     for i in range(len(preds)):
         actual = labels[i]
@@ -44,7 +49,7 @@ def predict(model, data, target, future):
         proportion = weights[i]/weightTotal
         shares = int(investment*proportion/actual)
         
-        cashout += future*shares
+        cashout += (future-actual)*shares
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
@@ -57,7 +62,7 @@ date = "2022-06-22"#date override
 fileName = 'models\model-'+date
 model = tf.keras.models.load_model(fileName)
 data = pd.read_csv("results.csv", header=0)[100:]
-target = "price_label"
-future = "price_future"
+target = "price_2022-01-03"
+future = "price_2022-06-01"
 
 predict(model, data, target, future)

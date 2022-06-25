@@ -35,12 +35,11 @@ def fetchBenchmarks(dates, symbol = "VTSAX", overwrite=False):#S&P 500 symbol: %
     apikey = open("apikey.txt", "r").read()
     http = urllib3.PoolManager()
     filesWritten = 0
-    names = ["labelDate", "futureDate"]
 
-    for i in range(len(dates)):
-        url = "https://financialmodelingprep.com/api/v3/historical-price-full/"+symbol+"?from="+dates[i]+"&to="+dates[i]+"&apikey="+apikey
+    for date in dates:
+        url = "https://financialmodelingprep.com/api/v3/historical-price-full/"+symbol+"?from="+date+"&to="+date+"&apikey="+apikey
 
-        fileName = "API Archives/benchmark_"+names[i]+".json"
+        fileName = "API Archives/benchmark_price_"+date+".json"
 
         if(overwrite or not os.path.exists(fileName)):
             fetchFile(url, fileName, http)
@@ -56,21 +55,19 @@ def writeDates(labelDate, futureDate):
     f.close()
 
 symbols = utils.readSymbols("symbols.txt")
-labelDate = "2022-01-03"
-futureDate = "2022-06-01"
+dates = ["2022-01-03", "2022-06-01"]
 
 queries = [
     {"endpoint":"income-statement", "params":"limit=120", "name":"income_statement"},
     {"endpoint":"balance-sheet-statement", "params":"limit=120", "name":"balance_sheet"},
-    {"endpoint":"cash-flow-statement", "params":"limit=120", "name":"cash_flow"},
-    {"endpoint":"historical-price-full", "params":"from="+labelDate+"&to="+labelDate, "name":"price_label"},
-    {"endpoint":"historical-price-full", "params":"from="+futureDate+"&to="+futureDate, "name":"price_future"},
-    #{"endpoint":"historical-market-capitalization", "params":"limit=120", "name":"market_cap"}
+    {"endpoint":"cash-flow-statement", "params":"limit=120", "name":"cash_flow"}
     ]
+for date in dates:
+    queries.append({"endpoint":"historical-price-full", "params":"from="+date+"&to="+date, "name":"price_"+date})
 
-input("Input any text to attempt "+str(len(symbols)*len(queries)+2)+" API requests")
+input("Input any text to attempt "+str(len(symbols)*len(queries)+len(dates))+" API requests")
 
 result = fetchStatements(symbols = symbols, queries = queries)
-result += fetchBenchmarks([labelDate, futureDate])
+result += fetchBenchmarks(dates)
 
 print("Successfully wrote "+str(result)+" files")
