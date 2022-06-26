@@ -4,9 +4,4 @@ This will be a machine learning system which attempts to predict the long-run va
 
 This will not be a day-trading bot, it will not learn from market price history, and it will at most attempt to predict the price of a stock in several years' time, not tomorrow or next year.
 
-Workflow:
-
-    -fetcher
-    -preprocessor
-    -model
-    -predict
+[Data provided by Financial Modeling Prep](https://financialmodelingprep.com/developer/docs/)

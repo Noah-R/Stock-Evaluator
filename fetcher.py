@@ -53,21 +53,3 @@ def writeDates(labelDate, futureDate):
     f = open("dates.txt", "w")
     json.dump(dates, f)
     f.close()
-
-symbols = utils.readSymbols("symbols.txt")
-dates = ["2022-01-03", "2022-06-01"]
-
-queries = [
-    {"endpoint":"income-statement", "params":"limit=120", "name":"income_statement"},
-    {"endpoint":"balance-sheet-statement", "params":"limit=120", "name":"balance_sheet"},
-    {"endpoint":"cash-flow-statement", "params":"limit=120", "name":"cash_flow"}
-    ]
-for date in dates:
-    queries.append({"endpoint":"historical-price-full", "params":"from="+date+"&to="+date, "name":"price_"+date})
-
-input("Input any text to attempt "+str(len(symbols)*len(queries)+len(dates))+" API requests")
-
-result = fetchStatements(symbols = symbols, queries = queries)
-result += fetchBenchmarks(dates)
-
-print("Successfully wrote "+str(result)+" files")

@@ -80,16 +80,3 @@ def buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, p
     if (prepare):
         masterdf = prepareForTraining(masterdf, columnsToExclude = ["price_2022-01-03", "price_2022-06-01"])
     return masterdf
-
-symbols = utils.readSymbols("symbols.txt")
-features = ['balance_sheet', 'income_statement', 'cash_flow']
-labelDate = "2022-01-03"
-futureDate = "2022-06-01"
-startYear = 2019
-endYear = 2021
-prepare = True
-
-dataset = buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, prepare = prepare)
-#dataset = dataset.sort_index(axis=1)#uncomment to alphabetize columns
-dataset.to_csv("results.csv", index=False)
-print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")

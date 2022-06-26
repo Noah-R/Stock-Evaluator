@@ -31,7 +31,8 @@ def parsePrice(symbol, date):
 
     return 0
 
-def predict(model, data, target, future):
+def predict(modelName, data, target, future):
+    model = tf.keras.models.load_model(modelName)
     features = {name: np.array(value) for name, value in data.items()}
     labels = np.array(features.pop(target))
     futures = np.array(features.pop(future))
@@ -56,13 +57,3 @@ def predict(model, data, target, future):
     mktEnd = parsePrice("benchmark", "2022-06-01")
     mktStart = parsePrice("benchmark", "2022-01-03")
     print("Market percent return: "+str(round(100*(mktEnd/mktStart-1), 2)))
-
-date = str(datetime.date.today())
-#date = "2022-06-25"#date override
-fileName = 'models\model-'+date
-model = tf.keras.models.load_model(fileName)
-data = pd.read_csv("results.csv", header=0)[100:]
-target = "price_2022-01-03"
-future = "price_2022-06-01"
-
-predict(model, data, target, future)

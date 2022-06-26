@@ -46,21 +46,3 @@ def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, 
     )
 
     model.save("models/model-"+date)
-
-trainingdata = pd.read_csv("results.csv", header=0)
-trainingdata.drop(columns="price_2022-06-01", inplace=True)
-#trainingdata = trainingdata.sample(frac=1, random_state=1).reset_index()#uncomment to shuffle before split
-testdata = trainingdata[80:100]
-trainingdata = trainingdata[:80]
-
-target = "price_2022-01-03"
-learningrate = .00001
-batchsize = 80
-epochs = 100
-l2rate = .00015
-dropoutrate = 0.1
-earlyStoppingPatience = 20
-layersize = 192
-date = str(datetime.date.today())
-
-trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize, date)
