@@ -54,6 +54,6 @@ def predict(modelName, data, target, future):
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
-    mktEnd = parsePrice("benchmark", "2022-06-01")
-    mktStart = parsePrice("benchmark", "2022-01-03")
+    mktEnd = parsePrice("VTSAX", "2022-06-01")
+    mktStart = parsePrice("VTSAX", "2022-01-03")
     print("Market percent return: "+str(round(100*(mktEnd/mktStart-1), 2)))

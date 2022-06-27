@@ -7,9 +7,8 @@ import pandas as pd
 import datetime
 
 #fetcher
-symbols = utils.readSymbols("symbols.txt")
 dates = ["2022-01-03", "2022-06-01"]
-
+symbols = utils.readSymbols("symbols.txt")
 queries = [
     {"endpoint":"income-statement", "params":"limit=120", "name":"income_statement"},
     {"endpoint":"balance-sheet-statement", "params":"limit=120", "name":"balance_sheet"},
@@ -22,8 +21,13 @@ for date in dates:
 
 input("Input any text to attempt "+str(len(symbols)*len(queries)+len(dates))+" API requests")
 
-result = fetcher.fetchStatements(symbols = symbols, queries = queries)
-result += fetcher.fetchBenchmarks(dates)
+result = fetcher.fetchEndpoints(symbols = symbols, queries = queries)
+
+queries = []
+for date in dates:
+    queries.append({"endpoint":"historical-price-full", "params":"from="+date+"&to="+date, "name":"price_"+date})
+
+result += fetcher.fetchEndpoints(["VTSAX"], queries)
 
 print("Successfully wrote "+str(result)+" files")
 
