@@ -37,9 +37,9 @@ print("Successfully wrote "+str(result)+" files")
 features = ['balance_sheet', 'income_statement', 'cash_flow']
 startYear = 2019
 endYear = 2021
-prepare = True
+debug = False
 
-dataset = preprocessor.buildDataset(symbols, features, dates[0], dates[1], startYear, endYear, prepare = prepare)
+dataset = preprocessor.buildDataset(symbols, features, dates[0], dates[1], startYear, endYear, debug = debug)
 #dataset = dataset.sort_index(axis=1)#uncomment to alphabetize columns
 dataset.to_csv("results.csv", index=False)
 print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")
@@ -62,15 +62,15 @@ l2rate = .00015
 dropoutrate = 0.1
 earlyStoppingPatience = 20
 layersize = 192
-date = str(datetime.date.today())
 
-model.trainModel(dataset, testdata, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize, date)
+model.trainModel(dataset, testdata, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize)
 
 #end model
 #predict
 
-#date = "2022-06-25"#date override
-modelName = 'models\model-'+date
+modelName = str(datetime.date.today())
+#modelName = "2022-06-25"#date override
+modelName = 'models\model-'+modelName
 future = "price_"+dates[1]
 
-predict.predict(modelName, predictdata, target, future)
+predict.assessProfit(modelName, predictdata, target, future)

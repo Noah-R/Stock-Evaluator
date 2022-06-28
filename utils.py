@@ -1,5 +1,6 @@
 import os
 import json
+import pandas as pd
 
 def readSymbols(filename):
     """Parses a text file of line-separated stock symbols into a list
@@ -43,3 +44,21 @@ def writeSymbols(symbols, target):
     for symbol in symbols:
         f.write(symbol+"\n")
     f.close()
+
+def parsePrice(symbol, date):
+    """Reads stock price data from a fetched file
+
+    :param symbol: Stock symbol to find price for
+    :type symbol: str
+    :param date: Date to find stock price on
+    :type date: str, "yyyy-mm-dd"
+    :return: Stock price of symbol on date, -1 if unavailable
+    :rtype: int
+    """
+    fileName = "API Archives/"+symbol+"_price_"+date+".json"
+    df = pd.read_json(fileName)
+
+    if("historical" in df):
+        return df["historical"].apply(lambda x: round(x["close"], 2))[0]
+
+    return -1

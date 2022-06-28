@@ -3,6 +3,19 @@ import utils
 import os
 
 def parseFinancialStatement(symbol, statement, startYear, endYear):
+    """Reads financial statement data from a fetched file
+
+    :param symbol: Stock symbol to parse data for
+    :type symbol: str
+    :param statement: Financial statement to read features from
+    :type statement: str
+    :param startYear: First year to include features from
+    :type startYear: int
+    :param endYear: Last year to include features from
+    :type endYear: int
+    :return: Single-row DataFrame, containing values of each feature for each year
+    :rtype: pandas.DataFrame
+    """
     fileName = "API Archives/"+symbol+"_"+statement+".json"
     df = pd.read_json(fileName)
 
@@ -28,29 +41,21 @@ def parseFinancialStatement(symbol, statement, startYear, endYear):
 
     return df
 
-def parsePrice(symbol, date):
-    fileName = "API Archives/"+symbol+"_price_"+date+".json"
-    df = pd.read_json(fileName)
-
-    if("historical" in df):
-        df["price_"+date] = df["historical"].apply(lambda x: round(x["close"], 2))
-        df.drop(columns="historical", inplace=True)
-
-    return df
-
-def transformMarketCaps(df):
-    #deprecated, if re-employing should create parameter to choose current/future date
-    df = pd.pivot(df, index="symbol", columns="date", values="marketCap")
-    df = df.reset_index()
-    df = df.rename(columns={df.columns[1]: 'marketCap'})
-    df = df.rename(columns={df.columns[-1]: 'futureMarketCap'})
-    df.drop(columns = df.keys()[2:-1], inplace = True)
-    return df
-
 def prepareForTraining(df, coefficient = 1000000, columnsToExclude = []):
+    """Performs final preprocessing transformations on assembled dataset
+
+    :param df: Assembled dataset
+    :type df: pandas.DataFrame
+    :param coefficient: Number to divide all values by, defaults to 1000000
+    :type coefficient: int, optional
+    :param columnsToExclude: Columns to exclude from division by coefficient, defaults to []
+    :type columnsToExclude: list, optional
+    :return: Preprocessed dataset
+    :rtype: pandas.DataFrame
+    """
     df.drop(labels = "symbol", axis = 1, inplace = True)
-    df = df.dropna(thresh=3)
-    df = df.fillna(value=0)
+    df = df.dropna(thresh = 3)
+    df = df.fillna(value = 0)
 
     for column in columnsToExclude:
         df[column] = df[column] * coefficient
@@ -58,17 +63,38 @@ def prepareForTraining(df, coefficient = 1000000, columnsToExclude = []):
 
     return df
 
-def buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, prepare=True):
+def buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, debug=False):
+    """Builds dataset from fetched files
+
+    :param symbols: List of stock symbols to include
+    :type symbols: list
+    :param features: List of financial statements to read features from
+    :type features: list
+    :param labelDate: Date to predict stock price on
+    :type labelDate: str, "yyyy-mm-dd"
+    :param futureDate: Future date to assess profit/loss on
+    :type futureDate: str, "yyyy-mm-dd"
+    :param startYear: First year to include features from
+    :type startYear: int
+    :param endYear: Last year to include features from
+    :type endYear: int
+    :param debug: Whether to skip final preprocessing transformations for debug purposes, defaults to False
+    :type debug: bool, optional
+    :return: Built dataset
+    :rtype: pandas.DataFrame
+    """
     masterdf = pd.DataFrame()
 
     for symbol in symbols:
-        rowdf = parsePrice(symbol, labelDate)
-        df = parsePrice(symbol, futureDate)
+        rowdf = pd.DataFrame()
+        rowdf["symbol"] = [symbol]
 
-        if("price_"+labelDate not in rowdf or "price_"+futureDate not in df):
+        labelPrice = utils.parsePrice(symbol, labelDate)
+        futurePrice = utils.parsePrice(symbol, futureDate)
+        if(labelPrice == -1 or futurePrice == -1):
             continue
-
-        rowdf = rowdf.merge(df, how='outer', on='symbol')   
+        rowdf["price_"+labelDate] = [labelPrice]
+        rowdf["price_"+futureDate] = [futurePrice]
 
         for statement in features:
             df = parseFinancialStatement(symbol, statement, startYear, endYear)
@@ -77,6 +103,6 @@ def buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, p
 
         masterdf = pd.concat([masterdf, rowdf])
         
-    if (prepare):
-        masterdf = prepareForTraining(masterdf, columnsToExclude = ["price_2022-01-03", "price_2022-06-01"])
+    if (not debug):
+        masterdf = prepareForTraining(masterdf, columnsToExclude = ["price_"+labelDate, "price_"+futureDate])
     return masterdf

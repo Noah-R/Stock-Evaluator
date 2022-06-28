@@ -6,11 +6,29 @@ import utils
 
 
 def strategy(pred, label):
+    """Determine portfolio weight of a single stock symbol
+
+    :param pred: Stock price predicted by model
+    :type pred: float
+    :param label: Actual stock price
+    :type label: float
+    :return: Relative weight
+    :rtype: float
+    """
     if pred<label:
         return 0
     return (pred/label)**2
 
 def getWeights(preds, labels):
+    """Determine portfolio weight for each stock symbol
+
+    :param preds: List of stock prices predicted by model
+    :type preds: list
+    :param labels: List of actual stock prices
+    :type labels: list
+    :return: List of relative weights for each stock
+    :rtype: list
+    """
     weights=[]
 
     for i in range(len(preds)):
@@ -22,16 +40,20 @@ def getWeights(preds, labels):
         
     return weights
 
-def parsePrice(symbol, date):
-    fileName = "API Archives/"+symbol+"_price_"+date+".json"
-    df = pd.read_json(fileName)
+def assessProfit(modelName, data, target, future, benchmark = "VTSAX"):
+    """Assess profitability of model-based strategy compared to a market benchmark
 
-    if("historical" in df):
-        return df["historical"].apply(lambda x: round(x["close"], 2))[0]
-
-    return 0
-
-def predict(modelName, data, target, future):
+    :param modelName: Folder name to load model from
+    :type modelName: str
+    :param data: Dataset to predict using
+    :type data: pandas.DataFrame
+    :param target: Name of column to predict
+    :type target: str
+    :param future: Name of column to assess profit/loss using
+    :type future: str
+    :param benchmark: Stock symbol to compare model return to, defaults to "VTSAX
+    :type benchmark: str, optional
+    """
     model = tf.keras.models.load_model(modelName)
     features = {name: np.array(value) for name, value in data.items()}
     labels = np.array(features.pop(target))
@@ -54,6 +76,6 @@ def predict(modelName, data, target, future):
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
-    mktEnd = parsePrice("VTSAX", "2022-06-01")
-    mktStart = parsePrice("VTSAX", "2022-01-03")
+    mktEnd = utils.parsePrice(benchmark, "2022-06-01")
+    mktStart = utils.parsePrice(benchmark, "2022-01-03")
     print("Market percent return: "+str(round(100*(mktEnd/mktStart-1), 2)))

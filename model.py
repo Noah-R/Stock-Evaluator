@@ -3,7 +3,32 @@ import pandas as pd
 import tensorflow as tf
 import datetime
 
-def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize, date):
+def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize, modelName = str(datetime.date.today())):
+    """Trains predictive model
+
+    :param trainingdata: Dataset to learn from
+    :type trainingdata: pandas.DataFrame
+    :param testdata: Dataset to validate with
+    :type testdata: pandas.DataFrame
+    :param target: Name of column to predict
+    :type target: str
+    :param learningrate: Learning rate of model
+    :type learningrate: float
+    :param batchsize: Batch size for gradient descent
+    :type batchsize: int
+    :param epochs: Maximum number of epochs
+    :type epochs: int
+    :param l2rate: L2 regularization rate
+    :type l2rate: float
+    :param dropoutrate: Dropout regularization rate
+    :type dropoutrate: float
+    :param earlyStoppingPatience: Number of epochs without improvement to allow before stopping
+    :type earlyStoppingPatience: int
+    :param layersize: Number of nodes in each model layer
+    :type layersize: int
+    :param modelName: Unique identifier to write to file names, defaults to current date as "yyyy-mm-dd"
+    :type modelName: str
+    """
     features=[]
 
     for col in trainingdata.keys():
@@ -31,7 +56,7 @@ def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, 
     testfeatures = {name: np.array(value) for name, value in testdata.items()}
     testlabel = np.array(testfeatures.pop(target))
 
-    tensorboardCallback = tf.keras.callbacks.TensorBoard(log_dir="models/tensorboard-"+date, histogram_freq=1)
+    tensorboardCallback = tf.keras.callbacks.TensorBoard(log_dir="models/tensorboard-"+modelName, histogram_freq=1)
     earlyStoppingCallback = tf.keras.callbacks.EarlyStopping(patience=earlyStoppingPatience, verbose=1, restore_best_weights=True)
 
     model.fit(
@@ -45,4 +70,4 @@ def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, 
         callbacks=[tensorboardCallback, earlyStoppingCallback]
     )
 
-    model.save("models/model-"+date)
+    model.save("models/model-"+modelName)
