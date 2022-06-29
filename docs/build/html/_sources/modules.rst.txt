@@ -8,5 +8,4 @@ Stock-Evaluator
    model
    predict
    preprocessor
-   runner
    utils
