@@ -1,6 +1,5 @@
 import pandas as pd
 import utils
-import os
 
 def parseFinancialStatement(symbol, statement, startYear, endYear):
     """Reads financial statement data from a fetched file

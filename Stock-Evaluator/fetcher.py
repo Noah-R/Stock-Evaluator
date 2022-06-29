@@ -1,7 +1,5 @@
 import urllib3
-import utils
 import os
-import json
 
 def fetchFile(url, fileName, http):
     """Handles a single request to the FinancialModelingPrep API
