@@ -57,6 +57,7 @@ def assessProfit(modelName, data, target, future, benchmark = "VTSAX"):
     features = {name: np.array(value) for name, value in data.items()}
     labels = np.array(features.pop(target))
     futures = np.array(features.pop(future))
+    symbols = np.array(features.pop("symbol"))
 
     preds = model.predict(x=features, verbose=1)
     weights = getWeights(preds, labels)
@@ -68,10 +69,12 @@ def assessProfit(modelName, data, target, future, benchmark = "VTSAX"):
     for i in range(len(preds)):
         actual = labels[i]
         future = futures[i]
+        symbol = symbols[i]
         proportion = weights[i]/weightTotal
         shares = int(investment*proportion/actual)
         
         cashout += (future-actual)*shares
+        print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each, earning $"+str((future-actual)*shares)+" total profit")
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 

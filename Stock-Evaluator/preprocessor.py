@@ -15,7 +15,7 @@ def parseFinancialStatement(symbol, statement, startYear, endYear):
     :return: Single-row DataFrame, containing values of each feature for each year
     :rtype: pandas.DataFrame
     """
-    fileName = "API Archives/"+symbol+"_"+statement+".json"
+    fileName = "Stock-Evaluator/API Archives/"+symbol+"_"+statement+".json"
     df = pd.read_json(fileName)
 
     dropCols = ["date", "reportedCurrency", "cik", "fillingDate", "acceptedDate", "period", "link", "finalLink"]
@@ -52,13 +52,12 @@ def prepareForTraining(df, coefficient = 1000000, columnsToExclude = []):
     :return: Preprocessed dataset
     :rtype: pandas.DataFrame
     """
-    df.drop(labels = "symbol", axis = 1, inplace = True)
     df = df.dropna(thresh = 3)
     df = df.fillna(value = 0)
 
-    for column in columnsToExclude:
-        df[column] = df[column] * coefficient
-    df = df/coefficient
+    for column in df.keys():
+        if column not in columnsToExclude:
+            df[column] = df[column] / coefficient
 
     return df
 
@@ -103,5 +102,5 @@ def buildDataset(symbols, features, labelDate, futureDate, startYear, endYear, d
         masterdf = pd.concat([masterdf, rowdf])
         
     if (not debug):
-        masterdf = prepareForTraining(masterdf, columnsToExclude = ["price_"+labelDate, "price_"+futureDate])
+        masterdf = prepareForTraining(masterdf, columnsToExclude = ["symbol", "price_"+labelDate, "price_"+futureDate])
     return masterdf

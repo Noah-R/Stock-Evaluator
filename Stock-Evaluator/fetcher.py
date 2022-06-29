@@ -29,7 +29,7 @@ def fetchEndpoints(symbols, queries, overwrite=False):
     :return: Number of new files written
     :rtype: int
     """
-    apikey = open("apikey.txt", "r").read()
+    apikey = open("Stock-Evaluator/apikey.txt", "r").read()
     http = urllib3.PoolManager()
     filesWritten = 0
 
@@ -41,7 +41,7 @@ def fetchEndpoints(symbols, queries, overwrite=False):
 
             url = "https://financialmodelingprep.com/api/v3/"+endpoint+"/"+symbol+"?"+params+"&apikey="+apikey
 
-            fileName = "API Archives/"+symbol+"_"+name+".json"
+            fileName = "Stock-Evaluator/API Archives/"+symbol+"_"+name+".json"
 
             if(overwrite or not os.path.exists(fileName)):
                 fetchFile(url, fileName, http)

@@ -54,7 +54,7 @@ def parsePrice(symbol, date):
     :return: Stock price of symbol on date, -1 if unavailable
     :rtype: int
     """
-    fileName = "API Archives/"+symbol+"_price_"+date+".json"
+    fileName = "Stock-Evaluator/API Archives/"+symbol+"_price_"+date+".json"
     df = pd.read_json(fileName)
 
     if("historical" in df):

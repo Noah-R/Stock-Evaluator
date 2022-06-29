@@ -56,7 +56,7 @@ def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, 
     testfeatures = {name: np.array(value) for name, value in testdata.items()}
     testlabel = np.array(testfeatures.pop(target))
 
-    tensorboardCallback = tf.keras.callbacks.TensorBoard(log_dir="models/tensorboard-"+modelName, histogram_freq=1)
+    tensorboardCallback = tf.keras.callbacks.TensorBoard(log_dir="Stock-Evaluator/models/tensorboard-"+modelName, histogram_freq=1)
     earlyStoppingCallback = tf.keras.callbacks.EarlyStopping(patience=earlyStoppingPatience, verbose=1, restore_best_weights=True)
 
     model.fit(
@@ -70,4 +70,4 @@ def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, 
         callbacks=[tensorboardCallback, earlyStoppingCallback]
     )
 
-    model.save("models/model-"+modelName)
+    model.save("Stock-Evaluator/models/model-"+modelName)
