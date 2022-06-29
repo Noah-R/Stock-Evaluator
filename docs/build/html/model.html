@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>model module &#8212; Stock-Evaluator  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-model">
+<span id="model-module"></span><h1>model module<a class="headerlink" href="#module-model" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="model.trainModel">
+<span class="sig-prename descclassname"><span class="pre">model.</span></span><span class="sig-name descname"><span class="pre">trainModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainingdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learningrate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l2rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropoutrate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">earlyStoppingPatience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layersize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'2022-06-28'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#model.trainModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains predictive model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trainingdata</strong> (<em>pandas.DataFrame</em>) – Dataset to learn from</p></li>
+<li><p><strong>testdata</strong> (<em>pandas.DataFrame</em>) – Dataset to validate with</p></li>
+<li><p><strong>target</strong> (<em>str</em>) – Name of column to predict</p></li>
+<li><p><strong>learningrate</strong> (<em>float</em>) – Learning rate of model</p></li>
+<li><p><strong>batchsize</strong> (<em>int</em>) – Batch size for gradient descent</p></li>
+<li><p><strong>epochs</strong> (<em>int</em>) – Maximum number of epochs</p></li>
+<li><p><strong>l2rate</strong> (<em>float</em>) – L2 regularization rate</p></li>
+<li><p><strong>dropoutrate</strong> (<em>float</em>) – Dropout regularization rate</p></li>
+<li><p><strong>earlyStoppingPatience</strong> (<em>int</em>) – Number of epochs without improvement to allow before stopping</p></li>
+<li><p><strong>layersize</strong> (<em>int</em>) – Number of nodes in each model layer</p></li>
+<li><p><strong>modelName</strong> (<em>str</em>) – Unique identifier to write to file names, defaults to current date as “yyyy-mm-dd”</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Stock-Evaluator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Noah Rutkovsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/model.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

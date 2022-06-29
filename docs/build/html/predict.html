@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>predict module &#8212; Stock-Evaluator  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-predict">
+<span id="predict-module"></span><h1>predict module<a class="headerlink" href="#module-predict" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="predict.assessProfit">
+<span class="sig-prename descclassname"><span class="pre">predict.</span></span><span class="sig-name descname"><span class="pre">assessProfit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">future</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VTSAX'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#predict.assessProfit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assess profitability of model-based strategy compared to a market benchmark</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modelName</strong> (<em>str</em>) – Folder name to load model from</p></li>
+<li><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Dataset to predict using</p></li>
+<li><p><strong>target</strong> (<em>str</em>) – Name of column to predict</p></li>
+<li><p><strong>future</strong> (<em>str</em>) – Name of column to assess profit/loss using</p></li>
+<li><p><strong>benchmark</strong> (<em>str</em><em>, </em><em>optional</em>) – Stock symbol to compare model return to, defaults to “VTSAX</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predict.getWeights">
+<span class="sig-prename descclassname"><span class="pre">predict.</span></span><span class="sig-name descname"><span class="pre">getWeights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#predict.getWeights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine portfolio weight for each stock symbol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>preds</strong> (<em>list</em>) – List of stock prices predicted by model</p></li>
+<li><p><strong>labels</strong> (<em>list</em>) – List of actual stock prices</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of relative weights for each stock</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predict.strategy">
+<span class="sig-prename descclassname"><span class="pre">predict.</span></span><span class="sig-name descname"><span class="pre">strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#predict.strategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine portfolio weight of a single stock symbol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pred</strong> (<em>float</em>) – Stock price predicted by model</p></li>
+<li><p><strong>label</strong> (<em>float</em>) – Actual stock price</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Relative weight</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Stock-Evaluator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Noah Rutkovsky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/predict.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
