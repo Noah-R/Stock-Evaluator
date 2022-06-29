@@ -1,7 +1,5 @@
 *.json
 *.csv
 apikey.txt
-dates.txt
 __pycache__
-models/*
-symbols/*
+*/models/*
