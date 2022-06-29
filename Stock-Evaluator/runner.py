@@ -44,12 +44,12 @@ modelName = 'Stock-Evaluator/models/model-'+modelName
 input("Input any text to attempt "+str((len(symbols)+len(benchmarks))*len(queries))+" API requests")
 
 result = fetcher.fetchEndpoints(symbols+benchmarks, queries)
-print("Successfully wrote "+str(result)+" files")
+input("Successfully wrote "+str(result)+" files, input any text to continue")
 
 dataset = preprocessor.buildDataset(symbols, features, dates[0], dates[1], startYear, endYear, debug = debug)
 #dataset = dataset.sort_index(axis=1)#uncomment to alphabetize columns
 dataset.to_csv("Stock-Evaluator/results.csv", index=False)
-print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")
+print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features, input any text to continue")
 
 #dataset = pd.read_csv("Stock-Evaluator/results.csv", header=0)#uncomment if skipping buildDataset
 #dataset = dataset.sample(frac=1, random_state=1).reset_index()#uncomment to shuffle before split
@@ -61,6 +61,6 @@ dataset.drop(columns=[future, "symbol"], inplace=True)
 testdata.drop(columns=[future, "symbol"], inplace=True)
 
 model.trainModel(dataset, testdata, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize)
-print("Successfully trained model")
+input("Successfully trained model, input any text to continue")
 
 predict.assessProfit(modelName, predictdata, target, future)
