@@ -1,11 +1,13 @@
 import os
 import pandas as pd
 
-def readSymbols(filename):
+def readSymbols(filename, cleanup = True):
     """Parses a text file of line-separated stock symbols into a list
 
     :param filename: Relative path of file
     :type filename: str
+    :param cleanup: Whether or not to alphabetize and remove duplicates from text file, defaults to True
+    :type cleanup: bool, optional
     :return: List of stock symbols
     :rtype: list
     """
@@ -15,6 +17,13 @@ def readSymbols(filename):
         symbol = str(line).strip().upper()
         if(symbol not in symbols):
             symbols.append(symbol)
+
+    if(cleanup):
+        symbols.sort()
+        with open(filename, "w") as file:
+            for symbol in symbols:
+                file.write(symbol+"\n")
+
     return symbols
 
 def getFileNames(folder):
@@ -51,7 +60,7 @@ def parsePrice(symbol, date):
     :type symbol: str
     :param date: Date to find stock price on
     :type date: str, "yyyy-mm-dd"
-    :return: Stock price of symbol on date, -1 if unavailable
+    :return: Stock price of symbol on date, None if unavailable
     :rtype: int
     """
     fileName = "Stock-Evaluator/API Archives/"+symbol+"_price_"+date+".json"
@@ -60,4 +69,4 @@ def parsePrice(symbol, date):
     if("historical" in df):
         return df["historical"].apply(lambda x: round(x["close"], 2))[0]
 
-    return -1
+    return None
