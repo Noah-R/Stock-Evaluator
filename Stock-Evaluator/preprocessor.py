@@ -26,11 +26,6 @@ def parseFinancialStatement(symbol, statement, startYear, endYear):
     df["calendarYear"] = df["calendarYear"].astype("int64")
     df = df.drop_duplicates('calendarYear')
 
-    #placeholder code for identifying symbols with missing data
-    #for year in range(startYear, endYear+1):
-    #    if(year not in set(df["calendarYear"])):
-    #        print(df["symbol"].iloc[0]+" is missing "+statement+" data from "+str(year))
-
     df = df.melt(id_vars=["symbol", "calendarYear"])
 
     df["column"] = df["calendarYear"].astype(str)+"_"+statement+"_"+df["variable"]

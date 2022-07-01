@@ -28,38 +28,48 @@ debug = False
 future = "price_"+dates[1]
 target = "price_"+dates[0]
 learningrate = .00001
-batchsize = 80
+batchsize = 256
 epochs = 100
 l2rate = .00015
 dropoutrate = 0.1
-earlyStoppingPatience = 100
+earlyStoppingPatience = epochs
 layersize = 192
 
 modelName = str(datetime.date.today())
 modelName = "2022-06-30"#date override
 modelName = 'Stock-Evaluator/models/model-'+modelName
 
-#All non-contingent field declarations above, all function calls below
 
-input("Input any text to attempt "+str((len(symbols)+len(benchmarks))*len(queries))+" API requests")
 
-result = fetcher.fetchEndpoints(symbols+benchmarks, queries)
-input("Successfully wrote "+str(result)+" files, input any text to continue")
 
-dataset = preprocessor.buildDataset(symbols, features, dates, startYear, endYear, debug = debug)
-#dataset = dataset.sort_index(axis=1)#uncomment to alphabetize columns
-dataset.to_csv("Stock-Evaluator/results.csv", index=False)
-input("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features, input any text to continue")
 
-#dataset = pd.read_csv("Stock-Evaluator/results.csv", header=0)#uncomment if skipping buildDataset
-testdata = dataset[int(len(dataset)*.6):int(len(dataset)*.8)]
-predictdata = dataset[int(len(dataset)*.8):]
-dataset = dataset[:int(len(dataset)*.6)]
 
-dataset.drop(columns=[future, "symbol"], inplace=True)
-testdata.drop(columns=[future, "symbol"], inplace=True)
 
-model.trainModel(dataset, testdata, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize)
-input("Successfully trained model, input any text to continue")
 
-predict.assessProfit(modelName, predictdata, target, future)
+
+
+if(input("Input 0 to skip attempting "+str((len(symbols)+len(benchmarks))*len(queries))+" API requests") !="0"):
+    result = fetcher.fetchEndpoints(symbols+benchmarks, queries)
+    print("Successfully wrote "+str(result)+" files")
+
+if(input("Input 0 to skip building dataset(Rebuilding the dataset after training the model will lead to in-sample predictions)") !="0"):
+    dataset = preprocessor.buildDataset(symbols, features, dates, startYear, endYear, debug = debug)
+    dataset.to_csv("Stock-Evaluator/results.csv", index=False)
+    print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")
+else:
+    dataset = pd.read_csv("Stock-Evaluator/results.csv", header=0)
+    print("Loaded dataset from existing file")
+
+predictData = dataset[int(len(dataset)*.8):]
+if(input("Input 0 to skip training model") !="0"):
+    valData = dataset[int(len(dataset)*.6):int(len(dataset)*.8)]
+    dataset = dataset[:int(len(dataset)*.6)]
+
+    dataset.drop(columns=[future, "symbol"], inplace=True)
+    valData.drop(columns=[future, "symbol"], inplace=True)
+
+    model.trainModel(dataset, valData, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize)
+    print("Successfully trained model")
+
+if(input("Input 0 to skip prediction") !="0"):
+    predict.assessProfit(modelName, predictData, target, future, benchmarks[0])

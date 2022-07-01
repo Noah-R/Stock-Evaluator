@@ -47,7 +47,7 @@ def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, 
     model.compile(
         optimizer=tf.keras.optimizers.RMSprop(learning_rate=learningrate),
         loss=tf.keras.losses.MeanSquaredError(),
-        metrics=["mse"]
+        metrics=["mae"]
     )
 
     features = {name: np.array(value) for name, value in trainingdata.items()}
@@ -66,7 +66,7 @@ def trainModel(trainingdata, testdata, target, learningrate, batchsize, epochs, 
         epochs = epochs,
         shuffle = False,
         verbose = 2,
-        validation_data = (testfeatures, testlabel), 
+        validation_data = (testfeatures, testlabel),
         callbacks=[tensorboardCallback, earlyStoppingCallback]
     )
 

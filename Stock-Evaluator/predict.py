@@ -39,7 +39,7 @@ def getWeights(preds, labels):
         
     return weights
 
-def assessProfit(modelName, data, target, future, benchmark = "VTSAX"):
+def assessProfit(modelName, data, target, future, benchmark):
     """Assess profitability of model-based strategy compared to a market benchmark
 
     :param modelName: Folder name to load model from
@@ -50,8 +50,8 @@ def assessProfit(modelName, data, target, future, benchmark = "VTSAX"):
     :type target: str
     :param future: Name of column to assess profit/loss using
     :type future: str
-    :param benchmark: Stock symbol to compare model return to, defaults to "VTSAX
-    :type benchmark: str, optional
+    :param benchmark: Stock symbol to compare model return to
+    :type benchmark: str
     """
     model = tf.keras.models.load_model(modelName)
     features = {name: np.array(value) for name, value in data.items()}
@@ -73,8 +73,9 @@ def assessProfit(modelName, data, target, future, benchmark = "VTSAX"):
         proportion = weights[i]/weightTotal
         shares = int(investment*proportion/actual)
         
-        cashout += (future-actual)*shares
-        print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each, earning $"+str((future-actual)*shares)+" total profit")
+        if(shares>0):
+            cashout += (future-actual)*shares
+            print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each, earning $"+str((future-actual)*shares)+" total profit")
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
