@@ -21,8 +21,9 @@ def readSymbols(filename, cleanup = True):
     if(cleanup):
         symbols.sort()
         with open(filename, "w") as file:
-            for symbol in symbols:
+            for symbol in symbols[:-1]:
                 file.write(symbol+"\n")
+            file.write(symbols[-1])
 
     return symbols
 
