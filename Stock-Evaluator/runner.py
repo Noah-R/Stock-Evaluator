@@ -27,12 +27,12 @@ debug = False
 
 future = "price_"+dates[1]
 target = "price_"+dates[0]
-learningrate = .00001
+learningrate = .0001
 batchsize = 256
 epochs = 100
 l2rate = .00015
-dropoutrate = 0.1
-earlyStoppingPatience = epochs
+dropoutrate = 0.0
+earlyStoppingPatience = 20
 layersize = 192
 
 modelName = str(datetime.date.today())
