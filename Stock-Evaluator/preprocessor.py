@@ -68,8 +68,8 @@ def buildDataset(symbols, features, dates, startYear, endYear, debug=False):
     :type symbols: list
     :param features: List of financial statements to read features from
     :type features: list
-    :param labelDate: List of dates to parse prices for
-    :type labelDate: list of strs, "yyyy-mm-dd"
+    :param dates: List of dates to parse prices for
+    :type dates: list of strs, "yyyy-mm-dd"
     :param startYear: First year to include features from
     :type startYear: int
     :param endYear: Last year to include features from

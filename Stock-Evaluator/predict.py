@@ -39,24 +39,42 @@ def getWeights(preds, labels):
         
     return weights
 
-def assessProfit(modelName, data, target, future, benchmark):
+def getSymbolReturn(symbol, startPrice, endPrice, startDate, endDate):
+    """For a given symbol between two dates, sequentially tabulate all dividends and factor for all splits, and return the adjusted return on investment
+
+    :param symbol: Stock symbol
+    :type symbol: str
+    :param startPrice: Price on startDate
+    :type startPrice: float
+    :param endPrice: Price on endDate
+    :type endPrice: float
+    :param startDate: Date to begin tabulating
+    :type startDate: str
+    :param endDate: Date to end tabulating
+    :type endDate: str
+    :return: Total return on investment per share over time period
+    :rtype: float
+    """
+    return endPrice-startPrice
+
+def assessProfit(modelName, data, targetDate, futureDate, benchmark):
     """Assess profitability of model-based strategy compared to a market benchmark
 
     :param modelName: Folder name to load model from
     :type modelName: str
     :param data: Dataset to predict using
     :type data: pandas.DataFrame
-    :param target: Name of column to predict
-    :type target: str
-    :param future: Name of column to assess profit/loss using
-    :type future: str
+    :param targetDate: Date to predict price os
+    :type targetDate: str
+    :param futureDate: Date to assess profit/loss using
+    :type futureDate: str
     :param benchmark: Stock symbol to compare model return to
     :type benchmark: str
     """
     model = tf.keras.models.load_model(modelName)
     features = {name: np.array(value) for name, value in data.items()}
-    labels = np.array(features.pop(target))
-    futures = np.array(features.pop(future))
+    labels = np.array(features.pop("price_"+targetDate))
+    futures = np.array(features.pop("price_"+futureDate))
     symbols = np.array(features.pop("symbol"))
 
     preds = model.predict(x=features, verbose=1)
@@ -74,11 +92,12 @@ def assessProfit(modelName, data, target, future, benchmark):
         shares = int(investment*proportion/actual)
         
         if(shares>0):
-            cashout += (future-actual)*shares
-            print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each, earning $"+str((future-actual)*shares)+" total profit")
+            ret = getSymbolReturn(symbol, actual, future, targetDate, futureDate)
+            cashout += (ret)*shares
+            print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each, earning $"+str((future-actual)*shares)+" total profit after splits and dividends")
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
-    mktEnd = utils.parsePrice(benchmark, "2022-06-01")
-    mktStart = utils.parsePrice(benchmark, "2022-01-03")
+    mktEnd = utils.parsePrice(benchmark, futureDate)
+    mktStart = utils.parsePrice(benchmark, targetDate)
     print("Market percent return: "+str(round(100*(mktEnd/mktStart-1), 2)))

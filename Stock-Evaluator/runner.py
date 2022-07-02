@@ -38,6 +38,7 @@ layersize = 192
 modelName = str(datetime.date.today())
 modelName = "2022-06-30"#date override
 modelName = 'Stock-Evaluator/models/model-'+modelName
+adjustments = ['splits', 'dividends']
 
 
 
@@ -72,4 +73,4 @@ if(input("Input 0 to skip training model") !="0"):
     print("Successfully trained model")
 
 if(input("Input 0 to skip prediction") !="0"):
-    predict.assessProfit(modelName, predictData, target, future, benchmarks[0])
+    predict.assessProfit(modelName, predictData, dates[0], dates[1], benchmarks[0])
