@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import utils
+import datetime
 
 
 def strategy(pred, label):
@@ -39,13 +40,11 @@ def getWeights(preds, labels):
         
     return weights
 
-def getSymbolReturn(symbol, startPrice, endPrice, startDate, endDate):
+def getSymbolReturn(symbol, endPrice, startDate, endDate):
     """For a given symbol between two dates, sequentially tabulate all dividends and factor for all splits, and return the adjusted return on investment
 
     :param symbol: Stock symbol
     :type symbol: str
-    :param startPrice: Price on startDate
-    :type startPrice: float
     :param endPrice: Price on endDate
     :type endPrice: float
     :param startDate: Date to begin tabulating
@@ -55,9 +54,48 @@ def getSymbolReturn(symbol, startPrice, endPrice, startDate, endDate):
     :return: Total return on investment per share over time period
     :rtype: float
     """
-    return endPrice-startPrice
+    startDateTime = utils.datetimeFromStr(startDate)
+    endDateTime = utils.datetimeFromStr(endDate)
+    
+    fileName = "Stock-Evaluator/API Archives/"+symbol+"_dividends.json"
+    dividends = pd.read_json(fileName)
+    fileName = "Stock-Evaluator/API Archives/"+symbol+"_splits.json"
+    splits = pd.read_json(fileName)
 
-def assessProfit(modelName, data, targetDate, futureDate, benchmark):
+    instructions=[]
+
+    if("historical" in dividends):
+        l = list(dividends['historical'])
+        for i in l:
+            date = utils.datetimeFromStr(i["date"])
+            if(date>=startDateTime and date<=endDateTime):
+                instructions.append({"type": "dividend", "date": i["date"], "amount": i["dividend"]})
+
+    if("historical" in splits):
+        l = list(splits['historical'])
+        for i in l:
+            date = utils.datetimeFromStr(i["date"])
+            if(date>=startDateTime and date<=endDateTime):
+                instructions.append({"type": "split", "date": i["date"], "amount": i["numerator"]/i["denominator"]})
+    
+    instructions = sorted(instructions, key = lambda i: i['date'])
+
+    shares = 1
+    dividends = 0
+    for i in instructions:
+        print(i)
+        if(i["type"] == "split"):
+            shares *= i["amount"]
+        elif(i["type"] == "dividend"):
+            dividends += i["amount"]*shares
+        else:
+            print("Unknown instruction type")
+    
+    input(symbol+" yielded total dividends of "+str(round(dividends, 2))+" and split "+str(shares)+" for 1")
+
+    return endPrice*shares+dividends
+
+def assessModel(modelName, data, targetDate, futureDate, benchmark):
     """Assess profitability of model-based strategy compared to a market benchmark
 
     :param modelName: Folder name to load model from
@@ -92,12 +130,13 @@ def assessProfit(modelName, data, targetDate, futureDate, benchmark):
         shares = int(investment*proportion/actual)
         
         if(shares>0):
-            ret = getSymbolReturn(symbol, actual, future, targetDate, futureDate)
-            cashout += (ret)*shares
-            print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each, earning $"+str((future-actual)*shares)+" total profit after splits and dividends")
+            ret = getSymbolReturn(symbol, future, targetDate, futureDate)
+            cashout += (ret-actual)*shares
+            print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each, earning $"+str(round(cashout, 2))+" total profit after splits and dividends")
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
     mktEnd = utils.parsePrice(benchmark, futureDate)
     mktStart = utils.parsePrice(benchmark, targetDate)
-    print("Market percent return: "+str(round(100*(mktEnd/mktStart-1), 2)))
+    mktReturn = getSymbolReturn(benchmark, mktEnd, targetDate, futureDate)
+    print("Market percent return: "+str(round(100*(mktReturn/mktStart-1), 2)))

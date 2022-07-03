@@ -73,4 +73,4 @@ if(input("Input 0 to skip training model") !="0"):
     print("Successfully trained model")
 
 if(input("Input 0 to skip prediction") !="0"):
-    predict.assessProfit(modelName, predictData, dates[0], dates[1], benchmarks[0])
+    predict.assessModel(modelName, predictData, dates[0], dates[1], benchmarks[0])

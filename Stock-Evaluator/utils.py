@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import datetime
 
 def readSymbols(filename, cleanup = True):
     """Parses a text file of line-separated stock symbols into a list
@@ -71,3 +72,13 @@ def parsePrice(symbol, date):
         return df["historical"].apply(lambda x: round(x["close"], 2))[0]
 
     return None
+
+def datetimeFromStr(dateStr):
+    """Returns a datetime object created from a date string, "yyyy-mm-dd" format
+
+    :param dateStr: Date to parse
+    :type dateStr: str
+    :return: Parsed Datetime object
+    :rtype: datetime.datetime
+    """
+    return datetime.date(int(dateStr[:4]), int(dateStr[5:7]), int(dateStr[8:]))
