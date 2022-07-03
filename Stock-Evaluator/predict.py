@@ -4,6 +4,36 @@ import tensorflow as tf
 import utils
 import datetime
 
+def parseHistorical(fileName, type, startDateTime = datetime.date(1970, 1, 1), endDateTime = datetime.date.today()):
+    #todo: Dividends should count if bought before and sold on/after date, splits should count if bought on/before and sold after date
+    """Parses a file of historical records, either dividends or splits, into a list of processing instructions
+
+    :param fileName: File to parse
+    :type fileName: str
+    :param type: Type of instruction
+    :type type: str
+    :param startDateTime: Date to begin reading, defaults to 1970-01-01
+    :type startDateTime: datetime.date, optional
+    :param endDateTime: Date to end reading, defaults to current day
+    :type endDateTime: datetime.date, optional
+    :return: List of instructions
+    :rtype: list of dicts with keys {"type", "date", "amount"}
+    """
+    df = pd.read_json(fileName)
+    instructions = []
+    if("historical" in df):
+        l = list(df['historical'])
+        for i in l:
+            date = utils.dateFromStr(i["date"])
+            if(date>=startDateTime and date<=endDateTime):
+                if(type == "split"):
+                    instructions.append({"type": "split", "date": i["date"], "amount": i["numerator"]/i["denominator"]})
+                elif(type == "dividend"):
+                    instructions.append({"type": "dividend", "date": i["date"], "amount": i["dividend"]})
+                else:
+                    print("Unknown instruction type")
+    return instructions
+
 
 def strategy(pred, label):
     """Determine portfolio weight of a single stock symbol
@@ -54,44 +84,25 @@ def getSymbolReturn(symbol, endPrice, startDate, endDate):
     :return: Total return on investment per share over time period
     :rtype: float
     """
-    startDateTime = utils.datetimeFromStr(startDate)
-    endDateTime = utils.datetimeFromStr(endDate)
+    startDateTime = utils.dateFromStr(startDate)
+    endDateTime = utils.dateFromStr(endDate)
     
-    fileName = "Stock-Evaluator/API Archives/"+symbol+"_dividends.json"
-    dividends = pd.read_json(fileName)
-    fileName = "Stock-Evaluator/API Archives/"+symbol+"_splits.json"
-    splits = pd.read_json(fileName)
+    dividends = "Stock-Evaluator/API Archives/"+symbol+"_dividends.json"
+    splits = "Stock-Evaluator/API Archives/"+symbol+"_splits.json"
 
-    instructions=[]
-
-    if("historical" in dividends):
-        l = list(dividends['historical'])
-        for i in l:
-            date = utils.datetimeFromStr(i["date"])
-            if(date>=startDateTime and date<=endDateTime):
-                instructions.append({"type": "dividend", "date": i["date"], "amount": i["dividend"]})
-
-    if("historical" in splits):
-        l = list(splits['historical'])
-        for i in l:
-            date = utils.datetimeFromStr(i["date"])
-            if(date>=startDateTime and date<=endDateTime):
-                instructions.append({"type": "split", "date": i["date"], "amount": i["numerator"]/i["denominator"]})
-    
+    instructions = parseHistorical(splits, "split", startDateTime, endDateTime)
+    instructions += parseHistorical(dividends, "dividend", startDateTime, endDateTime)    
     instructions = sorted(instructions, key = lambda i: i['date'])
 
     shares = 1
     dividends = 0
     for i in instructions:
-        print(i)
         if(i["type"] == "split"):
             shares *= i["amount"]
         elif(i["type"] == "dividend"):
             dividends += i["amount"]*shares
         else:
             print("Unknown instruction type")
-    
-    input(symbol+" yielded total dividends of "+str(round(dividends, 2))+" and split "+str(shares)+" for 1")
 
     return endPrice*shares+dividends
 
@@ -132,7 +143,7 @@ def assessModel(modelName, data, targetDate, futureDate, benchmark):
         if(shares>0):
             ret = getSymbolReturn(symbol, future, targetDate, futureDate)
             cashout += (ret-actual)*shares
-            print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each, earning $"+str(round(cashout, 2))+" total profit after splits and dividends")
+            print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each")
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 

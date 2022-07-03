@@ -28,15 +28,15 @@ debug = False
 future = "price_"+dates[1]
 target = "price_"+dates[0]
 learningrate = .0001
-batchsize = 256
+batchsize = 512
 epochs = 100
 l2rate = .00015
 dropoutrate = 0.0
-earlyStoppingPatience = 20
+earlyStoppingPatience = epochs
 layersize = 192
 
 modelName = str(datetime.date.today())
-modelName = "2022-06-30"#date override
+#modelName = "2022-07-03"#date override
 modelName = 'Stock-Evaluator/models/model-'+modelName
 adjustments = ['splits', 'dividends']
 

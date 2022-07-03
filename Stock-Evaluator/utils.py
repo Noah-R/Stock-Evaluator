@@ -73,12 +73,12 @@ def parsePrice(symbol, date):
 
     return None
 
-def datetimeFromStr(dateStr):
+def dateFromStr(dateStr):
     """Returns a datetime object created from a date string, "yyyy-mm-dd" format
 
-    :param dateStr: Date to parse
+    :param dateStr: String to parse
     :type dateStr: str
-    :return: Parsed Datetime object
-    :rtype: datetime.datetime
+    :return: Parsed Date object
+    :rtype: datetime.date
     """
     return datetime.date(int(dateStr[:4]), int(dateStr[5:7]), int(dateStr[8:]))
