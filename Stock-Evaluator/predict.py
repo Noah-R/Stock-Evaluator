@@ -52,9 +52,9 @@ def strategy(pred, label):
 def getWeights(preds, labels):
     """Determine portfolio weight for each stock symbol
 
-    :param preds: List of stock prices predicted by model
+    :param preds: List of future stock prices predicted by model
     :type preds: list
-    :param labels: List of actual stock prices
+    :param labels: List of current stock prices
     :type labels: list
     :return: List of relative weights for each stock
     :rtype: list
@@ -106,15 +106,15 @@ def getSymbolReturn(symbol, endPrice, startDate, endDate):
 
     return endPrice*shares+dividends
 
-def assessModel(modelName, data, targetDate, futureDate, benchmark):
+def assessModel(modelName, data, currentDate, futureDate, benchmark):
     """Assess profitability of model-based strategy compared to a market benchmark
 
     :param modelName: Folder name to load model from
     :type modelName: str
     :param data: Dataset to predict using
     :type data: pandas.DataFrame
-    :param targetDate: Date to predict price os
-    :type targetDate: str
+    :param currentDate: Date to predict price os
+    :type currentDate: str
     :param futureDate: Date to assess profit/loss using
     :type futureDate: str
     :param benchmark: Stock symbol to compare model return to
@@ -122,32 +122,31 @@ def assessModel(modelName, data, targetDate, futureDate, benchmark):
     """
     model = tf.keras.models.load_model(modelName)
     features = {name: np.array(value) for name, value in data.items()}
-    labels = np.array(features.pop("price_"+targetDate))
-    futures = np.array(features.pop("price_"+futureDate))
+    futurePrices = np.array(features.pop("price"))
     symbols = np.array(features.pop("symbol"))
+    currentPrices = [utils.parsePrice(s, currentDate) for s in symbols]
 
     preds = model.predict(x=features, verbose=1)
-    weights = getWeights(preds, labels)
+    weights = getWeights(preds, currentPrices)
     weightTotal = sum(weights)
 
     investment = 10000
     cashout = investment
 
     for i in range(len(preds)):
-        actual = labels[i]
-        future = futures[i]
+        currentPrice = currentPrices[i]
+        futurePrice = futurePrices[i]
         symbol = symbols[i]
         proportion = weights[i]/weightTotal
-        shares = int(investment*proportion/actual)
+        shares = int(investment*proportion/currentPrice)
         
         if(shares>0):
-            ret = getSymbolReturn(symbol, future, targetDate, futureDate)
-            cashout += (ret-actual)*shares
-            print("Bought "+str(shares)+" shares of "+symbol+" for "+str(actual)+" each, and sold for "+str(future)+" each")
+            ret = getSymbolReturn(symbol, futurePrice, currentDate, futureDate)
+            cashout += (ret-currentPrice)*shares
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
     mktEnd = utils.parsePrice(benchmark, futureDate)
-    mktStart = utils.parsePrice(benchmark, targetDate)
-    mktReturn = getSymbolReturn(benchmark, mktEnd, targetDate, futureDate)
+    mktStart = utils.parsePrice(benchmark, currentDate)
+    mktReturn = getSymbolReturn(benchmark, mktEnd, currentDate, futureDate)
     print("Market percent return: "+str(round(100*(mktReturn/mktStart-1), 2)))

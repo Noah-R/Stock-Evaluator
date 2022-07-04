@@ -1,4 +1,5 @@
 import pandas as pd
+from regex import DEBUG
 import utils
 
 def parseFinancialStatement(symbol, statement, startYear = 1970, endYear = 2039):
@@ -28,7 +29,7 @@ def parseFinancialStatement(symbol, statement, startYear = 1970, endYear = 2039)
 
     df = df.melt(id_vars=["symbol", "calendarYear"])
 
-    df["column"] = df["calendarYear"].astype(str)+"_"+statement+"_"+df["variable"]
+    df["column"] = "y"+(df["calendarYear"]-endYear).astype(str)+"_"+statement+"_"+df["variable"]
     df.drop(labels = ["calendarYear", "variable"], axis = 1, inplace = True)
 
     df = pd.pivot(df, index="symbol", columns="column", values="value")
@@ -61,8 +62,8 @@ def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], columnsT
 
     return df
 
-def buildDataset(symbols, features, startYear, endYear, targetDate, debug=False):
-    """Builds dataset from fetched files
+def buildPeriodDataset(symbols, features, startYear, endYear, targetDate, debug = False):
+    """Builds dataset from fetched files for a given time period
 
     :param symbols: List of stock symbols to include
     :type symbols: list
@@ -72,7 +73,7 @@ def buildDataset(symbols, features, startYear, endYear, targetDate, debug=False)
     :type startYear: int
     :param endYear: Last year to include features from
     :type endYear: int
-    :param targetDate: Date on which model will predict price
+    :param targetDate: Date for which model will predict price
     :type targetDate: str, "yyyy-mm-dd"
     :param debug: Whether to skip final preprocessing transformations for debug purposes, defaults to False
     :type debug: bool, optional
@@ -98,4 +99,26 @@ def buildDataset(symbols, features, startYear, endYear, targetDate, debug=False)
     if (not debug):
         exclude = ["symbol", "price"]
         masterdf = prepareForTraining(masterdf, requiredColumns = exclude, columnsToExclude = exclude)
+    return masterdf
+
+def buildDataset(symbols, features, timePeriods, debug = False):
+    """Builds dataset from fetched files for a given list of time periods
+
+    :param symbols: List of stock symbols to include
+    :type symbols: list
+    :param features: List of financial statements to read features from
+    :type features: list
+    :param timePeriods: List of time periods to assemble data over
+    :type timePeriods: list of dicts with keys {"endDate", "startYear", "endYear"}
+    :param debug: Whether to skip final preprocessing transformations for debug purposes, defaults to False
+    :type debug: bool, optional
+    :return: Built dataset
+    :rtype: pandas.DataFrame
+    """
+    masterdf = pd.DataFrame()
+    
+    for period in timePeriods:
+        perioddf = buildPeriodDataset(symbols, features, period["startYear"], period["endYear"], period["endDate"], debug = debug)
+        masterdf = pd.concat([masterdf, perioddf])
+
     return masterdf
