@@ -21,12 +21,12 @@ for date in dates:
     queries.append({"endpoint":"historical-price-full", "params":"from="+date+"&to="+date, "name":"price_"+date})
 
 features = ['balance_sheet', 'income_statement', 'cash_flow']
+targetDate = dates[1]
 startYear = 2019
 endYear = 2021
 debug = False
 
-future = "price_"+dates[1]
-target = "price_"+dates[0]
+target = "price"
 learningrate = .0001
 batchsize = 512
 epochs = 100
@@ -54,7 +54,7 @@ if(input("Input 0 to skip attempting "+str((len(symbols)+len(benchmarks))*len(qu
     print("Successfully wrote "+str(result)+" files")
 
 if(input("Input 0 to skip building dataset(Rebuilding the dataset after training the model will lead to in-sample predictions)") !="0"):
-    dataset = preprocessor.buildDataset(symbols, features, dates, startYear, endYear, debug = debug)
+    dataset = preprocessor.buildDataset(symbols, features, targetDate, startYear, endYear, debug = debug)
     dataset.to_csv("Stock-Evaluator/results.csv", index=False)
     print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")
 else:
@@ -66,8 +66,8 @@ if(input("Input 0 to skip training model") !="0"):
     valData = dataset[int(len(dataset)*.6):int(len(dataset)*.8)]
     dataset = dataset[:int(len(dataset)*.6)]
 
-    dataset.drop(columns=[future, "symbol"], inplace=True)
-    valData.drop(columns=[future, "symbol"], inplace=True)
+    dataset.drop(columns=["symbol"], inplace=True)
+    valData.drop(columns=["symbol"], inplace=True)
 
     model.trainModel(dataset, valData, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize)
     print("Successfully trained model")

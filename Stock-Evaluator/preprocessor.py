@@ -1,17 +1,17 @@
 import pandas as pd
 import utils
 
-def parseFinancialStatement(symbol, statement, startYear, endYear):
-    """Reads financial statement data from a fetched file
+def parseFinancialStatement(symbol, statement, startYear = 1970, endYear = 2039):
+    """Reads financial statement data from a fetched file between two given years
 
     :param symbol: Stock symbol to parse data for
     :type symbol: str
     :param statement: Financial statement to read features from
     :type statement: str
-    :param startYear: First year to include features from
-    :type startYear: int
-    :param endYear: Last year to include features from
-    :type endYear: int
+    :param startYear: First year to include features from, defaults to 1970
+    :type startYear: int, optional
+    :param endYear: Last year to include features from, defaults to 2039
+    :type endYear: int, optional
     :return: Single-row DataFrame, containing values of each feature for each year
     :rtype: pandas.DataFrame
     """
@@ -61,19 +61,19 @@ def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], columnsT
 
     return df
 
-def buildDataset(symbols, features, dates, startYear, endYear, debug=False):
+def buildDataset(symbols, features, startYear, endYear, targetDate, debug=False):
     """Builds dataset from fetched files
 
     :param symbols: List of stock symbols to include
     :type symbols: list
     :param features: List of financial statements to read features from
     :type features: list
-    :param dates: List of dates to parse prices for
-    :type dates: list of strs, "yyyy-mm-dd"
     :param startYear: First year to include features from
     :type startYear: int
     :param endYear: Last year to include features from
     :type endYear: int
+    :param targetDate: Date on which model will predict price
+    :type targetDate: str, "yyyy-mm-dd"
     :param debug: Whether to skip final preprocessing transformations for debug purposes, defaults to False
     :type debug: bool, optional
     :return: Built dataset
@@ -85,9 +85,8 @@ def buildDataset(symbols, features, dates, startYear, endYear, debug=False):
         rowdf = pd.DataFrame()
         rowdf["symbol"] = [symbol]
 
-        for date in dates:
-            price = utils.parsePrice(symbol, date)
-            rowdf["price_"+date] = [price]
+        price = utils.parsePrice(symbol, targetDate)
+        rowdf["price"] = [price]
 
         for statement in features:
             df = parseFinancialStatement(symbol, statement, startYear, endYear)
@@ -97,8 +96,6 @@ def buildDataset(symbols, features, dates, startYear, endYear, debug=False):
         masterdf = pd.concat([masterdf, rowdf])
         
     if (not debug):
-        exclude = ["symbol"]
-        for date in dates:
-            exclude.append("price_"+date)
+        exclude = ["symbol", "price"]
         masterdf = prepareForTraining(masterdf, requiredColumns = exclude, columnsToExclude = exclude)
     return masterdf
