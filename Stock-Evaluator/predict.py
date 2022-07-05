@@ -45,7 +45,7 @@ def strategy(pred, label):
     :return: Relative weight
     :rtype: float
     """
-    if pred<label:
+    if label == None or pred<label:
         return 0
     return (pred/label)**2
 
@@ -138,10 +138,13 @@ def assessModel(modelName, data, currentDate, futureDate, benchmark):
         futurePrice = futurePrices[i]
         symbol = symbols[i]
         proportion = weights[i]/weightTotal
-        shares = int(investment*proportion/currentPrice)
+        shares=0
+        if(not currentPrice == None):
+            shares = int(investment*proportion/currentPrice)
         
         if(shares>0):
             ret = getSymbolReturn(symbol, futurePrice, currentDate, futureDate)
+            print("Bought "+str(shares)+" shares of "+str(symbol)+" at "+str(currentPrice)+" each and sold at "+str(futurePrice)+" each, profiting "+str(ret-currentPrice)+" per share after splits and dividends")
             cashout += (ret-currentPrice)*shares
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))

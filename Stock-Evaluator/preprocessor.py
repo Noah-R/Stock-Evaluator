@@ -36,7 +36,7 @@ def parseFinancialStatement(symbol, statement, startYear = 1970, endYear = 2039)
 
     return df
 
-def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], columnsToExclude = []):
+def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], excludeFromNormalization = []):
     """Performs final preprocessing transformations on assembled dataset
 
     :param df: Assembled dataset
@@ -45,8 +45,8 @@ def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], columnsT
     :type coefficient: int, optional
     :param requiredColumns: Columns to require, any row missing any required column will be dropped, defaults to []
     :type requiredColumns: list, optional
-    :param columnsToExclude: Columns to exclude from division by coefficient, defaults to []
-    :type columnsToExclude: list, optional
+    :param excludeFromNormalization: Columns to exclude from division by coefficient, defaults to []
+    :type excludeFromNormalization: list, optional
     :return: Preprocessed dataset
     :rtype: pandas.DataFrame
     """
@@ -55,14 +55,14 @@ def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], columnsT
     df = df.fillna(value = 0)
 
     for column in df.keys():
-        if column not in columnsToExclude:
+        if column not in excludeFromNormalization:
             df[column] = df[column] / coefficient
 
     df = df.sample(frac=1, random_state=1).reset_index(drop=True)
 
     return df
 
-def buildPeriodDataset(symbols, features, startYear, endYear, targetDate, debug = False):
+def buildPeriodDataset(symbols, features, startYear, endYear, targetDate):
     """Builds dataset from fetched files for a given time period
 
     :param symbols: List of stock symbols to include
@@ -75,12 +75,10 @@ def buildPeriodDataset(symbols, features, startYear, endYear, targetDate, debug 
     :type endYear: int
     :param targetDate: Date for which model will predict price
     :type targetDate: str, "yyyy-mm-dd"
-    :param debug: Whether to skip final preprocessing transformations for debug purposes, defaults to False
-    :type debug: bool, optional
     :return: Built dataset
     :rtype: pandas.DataFrame
     """
-    masterdf = pd.DataFrame()
+    df = pd.DataFrame()
 
     for symbol in symbols:
         rowdf = pd.DataFrame()
@@ -90,16 +88,13 @@ def buildPeriodDataset(symbols, features, startYear, endYear, targetDate, debug 
         rowdf["price"] = [price]
 
         for statement in features:
-            df = parseFinancialStatement(symbol, statement, startYear, endYear)
+            statementdf = parseFinancialStatement(symbol, statement, startYear, endYear)
 
-            rowdf = rowdf.merge(df, how='outer', on='symbol')   
+            rowdf = rowdf.merge(statementdf, how='outer', on='symbol')   
 
-        masterdf = pd.concat([masterdf, rowdf])
+        df = pd.concat([df, rowdf])
         
-    if (not debug):
-        exclude = ["symbol", "price"]
-        masterdf = prepareForTraining(masterdf, requiredColumns = exclude, columnsToExclude = exclude)
-    return masterdf
+    return df
 
 def buildDataset(symbols, features, timePeriods, debug = False):
     """Builds dataset from fetched files for a given list of time periods
@@ -118,7 +113,11 @@ def buildDataset(symbols, features, timePeriods, debug = False):
     masterdf = pd.DataFrame()
     
     for period in timePeriods:
-        perioddf = buildPeriodDataset(symbols, features, period["startYear"], period["endYear"], period["endDate"], debug = debug)
+        perioddf = buildPeriodDataset(symbols, features, period["startYear"], period["endYear"], period["endDate"])
         masterdf = pd.concat([masterdf, perioddf])
+    
+    if (not debug):
+        exclude = ["symbol", "price"]
+        masterdf = prepareForTraining(masterdf, requiredColumns = exclude, excludeFromNormalization = exclude)
 
     return masterdf

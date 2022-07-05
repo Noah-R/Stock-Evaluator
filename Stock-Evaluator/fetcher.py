@@ -17,7 +17,7 @@ def fetchFile(url, fileName, http):
     target.write(r.data.decode('utf8'))
     target.close()
 
-def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999):
+def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999, confirmEach = False):
     """Fetches financial data from a series of endpoints for a series of stock symbols
 
     :param symbols: List of stock symbols to fetch data for
@@ -28,6 +28,8 @@ def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999):
     :type overwrite: bool, optional
     :param limit: Maximum number of requests to attempt, defaults to 999999999
     :type limit: int, optional
+    :param confirmEach: Whether to ask for confirmation before each API call, defaults to False
+    :type confirmEach: bool, optional
     :return: Number of new files written, -1 if number of requests exceeds limit
     :rtype: int
     """
@@ -49,7 +51,8 @@ def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999):
                 if(filesWritten == limit):
                     print("could not fetch "+str(url))
                     return -1
-                fetchFile(url, fileName, http)
-                filesWritten+=1
+                if(not confirmEach or input("Enter y to request the following URL: "+url) == "y"):
+                    fetchFile(url, fileName, http)
+                    filesWritten+=1
     
     return filesWritten
