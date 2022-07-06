@@ -1,5 +1,4 @@
 import pandas as pd
-from regex import DEBUG
 import utils
 
 def parseFinancialStatement(symbol, statement, startYear = 1970, endYear = 2039):
