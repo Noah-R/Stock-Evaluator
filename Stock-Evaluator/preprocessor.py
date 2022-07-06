@@ -62,7 +62,7 @@ def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], excludeF
 
     return df
 
-def buildPeriodDataset(symbols, features, startYear, endYear, targetDate):
+def buildPeriodDataset(symbols, features, startYear, endYear, startDate, targetDate):
     """Builds dataset from fetched files for a given time period
 
     :param symbols: List of stock symbols to include
@@ -73,6 +73,8 @@ def buildPeriodDataset(symbols, features, startYear, endYear, targetDate):
     :type startYear: int
     :param endYear: Last year to include features from
     :type endYear: int
+    :param startDate: Date on which model will predict future price
+    :type startDate: str, "yyyy-mm-dd"
     :param targetDate: Date for which model will predict price
     :type targetDate: str, "yyyy-mm-dd"
     :return: Built dataset
@@ -85,7 +87,9 @@ def buildPeriodDataset(symbols, features, startYear, endYear, targetDate):
         rowdf["symbol"] = [symbol]
 
         price = utils.parsePrice(symbol, targetDate)
-        rowdf["price"] = [price]
+        if(price == None):
+            continue
+        rowdf["price"] = [utils.getSymbolReturn(symbol, price, startDate, targetDate)]
 
         for statement in features:
             statementdf = parseFinancialStatement(symbol, statement, startYear, endYear)
@@ -113,7 +117,7 @@ def buildDataset(symbols, features, timePeriods, debug = False):
     masterdf = pd.DataFrame()
     
     for period in timePeriods:
-        perioddf = buildPeriodDataset(symbols, features, period["startYear"], period["endYear"], period["endDate"])
+        perioddf = buildPeriodDataset(symbols, features, period["startYear"], period["endYear"], period["startDate"], period["endDate"])
         masterdf = pd.concat([masterdf, perioddf])
     
     if (not debug):

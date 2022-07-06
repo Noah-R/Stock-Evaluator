@@ -8,7 +8,7 @@ import datetime
 import os
 
 APIlimit = 250
-confirms = True
+confirms = False
 timePeriods = [
     {"startDate": "2020-01-02", "endDate": "2020-06-01", "startYear": 2018, "endYear": 2019},
     {"startDate": "2021-01-04", "endDate": "2021-06-01", "startYear": 2019, "endYear": 2020},
@@ -42,7 +42,6 @@ earlyStoppingPatience = epochs
 layersize = 192
 
 modelName = str(datetime.date.today())
-#modelName = "2022-07-03"#date override
 modelName = 'Stock-Evaluator/models/model-'+modelName
 adjustments = ['splits', 'dividends']
 
