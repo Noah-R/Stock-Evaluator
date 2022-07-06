@@ -1,17 +1,18 @@
 import pandas as pd
+from regex import DEBUG
 import utils
 
-def parseFinancialStatement(symbol, statement, startYear, endYear):
-    """Reads financial statement data from a fetched file
+def parseFinancialStatement(symbol, statement, startYear = 1970, endYear = 2039):
+    """Reads financial statement data from a fetched file between two given years
 
     :param symbol: Stock symbol to parse data for
     :type symbol: str
     :param statement: Financial statement to read features from
     :type statement: str
-    :param startYear: First year to include features from
-    :type startYear: int
-    :param endYear: Last year to include features from
-    :type endYear: int
+    :param startYear: First year to include features from, defaults to 1970
+    :type startYear: int, optional
+    :param endYear: Last year to include features from, defaults to 2039
+    :type endYear: int, optional
     :return: Single-row DataFrame, containing values of each feature for each year
     :rtype: pandas.DataFrame
     """
@@ -28,14 +29,14 @@ def parseFinancialStatement(symbol, statement, startYear, endYear):
 
     df = df.melt(id_vars=["symbol", "calendarYear"])
 
-    df["column"] = df["calendarYear"].astype(str)+"_"+statement+"_"+df["variable"]
+    df["column"] = "y"+(df["calendarYear"]-endYear).astype(str)+"_"+statement+"_"+df["variable"]
     df.drop(labels = ["calendarYear", "variable"], axis = 1, inplace = True)
 
     df = pd.pivot(df, index="symbol", columns="column", values="value")
 
     return df
 
-def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], columnsToExclude = []):
+def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], excludeFromNormalization = []):
     """Performs final preprocessing transformations on assembled dataset
 
     :param df: Assembled dataset
@@ -44,8 +45,8 @@ def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], columnsT
     :type coefficient: int, optional
     :param requiredColumns: Columns to require, any row missing any required column will be dropped, defaults to []
     :type requiredColumns: list, optional
-    :param columnsToExclude: Columns to exclude from division by coefficient, defaults to []
-    :type columnsToExclude: list, optional
+    :param excludeFromNormalization: Columns to exclude from division by coefficient, defaults to []
+    :type excludeFromNormalization: list, optional
     :return: Preprocessed dataset
     :rtype: pandas.DataFrame
     """
@@ -54,51 +55,73 @@ def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], columnsT
     df = df.fillna(value = 0)
 
     for column in df.keys():
-        if column not in columnsToExclude:
+        if column not in excludeFromNormalization:
             df[column] = df[column] / coefficient
 
     df = df.sample(frac=1, random_state=1).reset_index(drop=True)
 
     return df
 
-def buildDataset(symbols, features, dates, startYear, endYear, debug=False):
-    """Builds dataset from fetched files
+def buildPeriodDataset(symbols, features, startYear, endYear, startDate, targetDate):
+    """Builds dataset from fetched files for a given time period
 
     :param symbols: List of stock symbols to include
     :type symbols: list
     :param features: List of financial statements to read features from
     :type features: list
-    :param dates: List of dates to parse prices for
-    :type dates: list of strs, "yyyy-mm-dd"
     :param startYear: First year to include features from
     :type startYear: int
     :param endYear: Last year to include features from
     :type endYear: int
+    :param startDate: Date on which model will predict future price
+    :type startDate: str, "yyyy-mm-dd"
+    :param targetDate: Date for which model will predict price
+    :type targetDate: str, "yyyy-mm-dd"
+    :return: Built dataset
+    :rtype: pandas.DataFrame
+    """
+    df = pd.DataFrame()
+
+    for symbol in symbols:
+        rowdf = pd.DataFrame()
+        rowdf["symbol"] = [symbol]
+
+        price = utils.parsePrice(symbol, targetDate)
+        if(price == None):
+            continue
+        rowdf["price"] = [utils.getSymbolReturn(symbol, price, startDate, targetDate)]
+
+        for statement in features:
+            statementdf = parseFinancialStatement(symbol, statement, startYear, endYear)
+
+            rowdf = rowdf.merge(statementdf, how='outer', on='symbol')   
+
+        df = pd.concat([df, rowdf])
+        
+    return df
+
+def buildDataset(symbols, features, timePeriods, debug = False):
+    """Builds dataset from fetched files for a given list of time periods
+
+    :param symbols: List of stock symbols to include
+    :type symbols: list
+    :param features: List of financial statements to read features from
+    :type features: list
+    :param timePeriods: List of time periods to assemble data over
+    :type timePeriods: list of dicts with keys {"endDate", "startYear", "endYear"}
     :param debug: Whether to skip final preprocessing transformations for debug purposes, defaults to False
     :type debug: bool, optional
     :return: Built dataset
     :rtype: pandas.DataFrame
     """
     masterdf = pd.DataFrame()
-
-    for symbol in symbols:
-        rowdf = pd.DataFrame()
-        rowdf["symbol"] = [symbol]
-
-        for date in dates:
-            price = utils.parsePrice(symbol, date)
-            rowdf["price_"+date] = [price]
-
-        for statement in features:
-            df = parseFinancialStatement(symbol, statement, startYear, endYear)
-
-            rowdf = rowdf.merge(df, how='outer', on='symbol')   
-
-        masterdf = pd.concat([masterdf, rowdf])
-        
+    
+    for period in timePeriods:
+        perioddf = buildPeriodDataset(symbols, features, period["startYear"], period["endYear"], period["startDate"], period["endDate"])
+        masterdf = pd.concat([masterdf, perioddf])
+    
     if (not debug):
-        exclude = ["symbol"]
-        for date in dates:
-            exclude.append("price_"+date)
-        masterdf = prepareForTraining(masterdf, requiredColumns = exclude, columnsToExclude = exclude)
+        exclude = ["symbol", "price"]
+        masterdf = prepareForTraining(masterdf, requiredColumns = exclude, excludeFromNormalization = exclude)
+
     return masterdf

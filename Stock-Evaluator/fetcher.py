@@ -2,7 +2,7 @@ import urllib3
 import os
 
 def fetchFile(url, fileName, http):
-    """Handles a single request to the FinancialModelingPrep API
+    """Handles a single request to the FinancialModelingPrep API and writes the result to a file
 
     :param url: Endpoint URL to request
     :type url: str
@@ -17,7 +17,7 @@ def fetchFile(url, fileName, http):
     target.write(r.data.decode('utf8'))
     target.close()
 
-def fetchEndpoints(symbols, queries, overwrite=False):
+def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999, confirmEach = False):
     """Fetches financial data from a series of endpoints for a series of stock symbols
 
     :param symbols: List of stock symbols to fetch data for
@@ -26,7 +26,11 @@ def fetchEndpoints(symbols, queries, overwrite=False):
     :type queries: list of dictionaries with keys {endpoint, params, name}
     :param overwrite: Whether to overwrite existing files if present, defaults to False
     :type overwrite: bool, optional
-    :return: Number of new files written
+    :param limit: Maximum number of requests to attempt, defaults to 999999999
+    :type limit: int, optional
+    :param confirmEach: Whether to ask for confirmation before each API call, defaults to False
+    :type confirmEach: bool, optional
+    :return: Number of new files written, -1 if number of requests exceeds limit
     :rtype: int
     """
     apikey = open("Stock-Evaluator/apikey.txt", "r").read()
@@ -44,7 +48,11 @@ def fetchEndpoints(symbols, queries, overwrite=False):
             fileName = "Stock-Evaluator/API Archives/"+symbol+"_"+name+".json"
 
             if(overwrite or not os.path.exists(fileName)):
-                fetchFile(url, fileName, http)
-                filesWritten+=1
+                if(filesWritten == limit):
+                    print("could not fetch "+str(url))
+                    return -1
+                if(not confirmEach or input("Enter y to request the following URL: "+url) == "y"):
+                    fetchFile(url, fileName, http)
+                    filesWritten+=1
     
     return filesWritten

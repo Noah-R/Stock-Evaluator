@@ -7,7 +7,13 @@ import pandas as pd
 import datetime
 import os
 
-dates = ["2022-01-03", "2022-06-01"]
+APIlimit = 250
+confirms = False
+timePeriods = [
+    {"startDate": "2020-01-02", "endDate": "2020-06-01", "startYear": 2018, "endYear": 2019},
+    {"startDate": "2021-01-04", "endDate": "2021-06-01", "startYear": 2019, "endYear": 2020},
+    {"startDate": "2022-01-03", "endDate": "2022-06-01", "startYear": 2020, "endYear": 2021}
+]
 symbols = utils.readSymbols('Stock-Evaluator/symbols.txt')
 benchmarks = ["VTSAX"]
 queries = [
@@ -17,16 +23,16 @@ queries = [
     {"endpoint":"historical-price-full/stock_split", "params":"", "name":"splits"},
     {"endpoint":"historical-price-full/stock_dividend", "params":"", "name":"dividends"}
     ]
-for date in dates:
+for period in timePeriods:
+    date = period["endDate"]
     queries.append({"endpoint":"historical-price-full", "params":"from="+date+"&to="+date, "name":"price_"+date})
+date = timePeriods[-1]["startDate"]
+queries.append({"endpoint":"historical-price-full", "params":"from="+date+"&to="+date, "name":"price_"+date})
 
 features = ['balance_sheet', 'income_statement', 'cash_flow']
-startYear = 2019
-endYear = 2021
 debug = False
 
-future = "price_"+dates[1]
-target = "price_"+dates[0]
+target = "price"
 learningrate = .0001
 batchsize = 512
 epochs = 100
@@ -36,7 +42,6 @@ earlyStoppingPatience = epochs
 layersize = 192
 
 modelName = str(datetime.date.today())
-#modelName = "2022-07-03"#date override
 modelName = 'Stock-Evaluator/models/model-'+modelName
 adjustments = ['splits', 'dividends']
 
@@ -50,27 +55,26 @@ adjustments = ['splits', 'dividends']
 
 
 if(input("Input 0 to skip attempting "+str((len(symbols)+len(benchmarks))*len(queries))+" API requests") !="0"):
-    result = fetcher.fetchEndpoints(symbols+benchmarks, queries)
+    result = fetcher.fetchEndpoints(symbols+benchmarks, queries, limit = APIlimit, confirmEach = confirms)
     print("Successfully wrote "+str(result)+" files")
 
-if(input("Input 0 to skip building dataset(Rebuilding the dataset after training the model will lead to in-sample predictions)") !="0"):
-    dataset = preprocessor.buildDataset(symbols, features, dates, startYear, endYear, debug = debug)
-    dataset.to_csv("Stock-Evaluator/results.csv", index=False)
-    print("Successfully built dataset with "+str(len(dataset))+" examples and "+str(len(dataset.keys()))+" features")
+if(input("Input 0 to skip building training set(Rebuilding the dataset after training the model will lead to in-sample predictions)") !="0"):
+    trainingSet = preprocessor.buildDataset(symbols, features, timePeriods[:-1], debug = debug)
+    trainingSet.to_csv("Stock-Evaluator/trainingData.csv", index=False)
+    print("Successfully built dataset with "+str(len(trainingSet))+" examples and "+str(len(trainingSet.keys()))+" features")
 else:
-    dataset = pd.read_csv("Stock-Evaluator/results.csv", header=0)
+    trainingSet = pd.read_csv("Stock-Evaluator/trainingData.csv", header=0)
     print("Loaded dataset from existing file")
 
-predictData = dataset[int(len(dataset)*.8):]
 if(input("Input 0 to skip training model") !="0"):
-    valData = dataset[int(len(dataset)*.6):int(len(dataset)*.8)]
-    dataset = dataset[:int(len(dataset)*.6)]
+    trainingSet.drop(columns=["symbol"], inplace=True)
 
-    dataset.drop(columns=[future, "symbol"], inplace=True)
-    valData.drop(columns=[future, "symbol"], inplace=True)
+    valData = trainingSet[int(len(trainingSet)*.8):]
+    trainingSet = trainingSet[:int(len(trainingSet)*.8)]
 
-    model.trainModel(dataset, valData, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize)
+    model.trainModel(trainingSet, valData, target, learningrate, batchsize, epochs, l2rate, dropoutrate, earlyStoppingPatience, layersize)
     print("Successfully trained model")
 
 if(input("Input 0 to skip prediction") !="0"):
-    predict.assessModel(modelName, predictData, dates[0], dates[1], benchmarks[0])
+    predictData = preprocessor.buildDataset(symbols, features, [timePeriods[-1]], debug = debug)
+    predict.assessModel(modelName, predictData, timePeriods[-1]["startDate"], timePeriods[-1]["endDate"], benchmarks[0])

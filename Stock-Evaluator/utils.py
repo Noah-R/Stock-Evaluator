@@ -82,3 +82,69 @@ def dateFromStr(dateStr):
     :rtype: datetime.date
     """
     return datetime.date(int(dateStr[:4]), int(dateStr[5:7]), int(dateStr[8:]))
+
+def parseHistorical(fileName, type, startDateTime = datetime.date(1970, 1, 1), endDateTime = datetime.date.today()):
+    #todo: Dividends should count if bought before and sold on/after date, splits should count if bought on/before and sold after date
+    """Parses a file of historical records, either dividends or splits, into a list of processing instructions
+
+    :param fileName: File to parse
+    :type fileName: str
+    :param type: Type of instruction
+    :type type: str
+    :param startDateTime: Date to begin reading, defaults to 1970-01-01
+    :type startDateTime: datetime.date, optional
+    :param endDateTime: Date to end reading, defaults to current day
+    :type endDateTime: datetime.date, optional
+    :return: List of instructions
+    :rtype: list of dicts with keys {"type", "date", "amount"}
+    """
+    df = pd.read_json(fileName)
+    instructions = []
+    if("historical" in df):
+        l = list(df['historical'])
+        for i in l:
+            date = dateFromStr(i["date"])
+            if(date>=startDateTime and date<=endDateTime):
+                if(type == "split"):
+                    instructions.append({"type": "split", "date": i["date"], "amount": i["numerator"]/i["denominator"]})
+                elif(type == "dividend"):
+                    instructions.append({"type": "dividend", "date": i["date"], "amount": i["dividend"]})
+                else:
+                    print("Unknown instruction type")
+    return instructions
+
+def getSymbolReturn(symbol, endPrice, startDate, endDate):
+    """For a given symbol between two dates, sequentially tabulate all dividends and factor for all splits, and return the adjusted return on investment
+
+    :param symbol: Stock symbol
+    :type symbol: str
+    :param endPrice: Price on endDate
+    :type endPrice: float
+    :param startDate: Date to begin tabulating
+    :type startDate: str, "yyyy-mm-dd"
+    :param endDate: Date to end tabulating
+    :type endDate: str, "yyyy-mm-dd"
+    :return: Total return on investment per share over time period
+    :rtype: float
+    """
+    startDateTime = dateFromStr(startDate)
+    endDateTime = dateFromStr(endDate)
+    
+    dividends = "Stock-Evaluator/API Archives/"+symbol+"_dividends.json"
+    splits = "Stock-Evaluator/API Archives/"+symbol+"_splits.json"
+
+    instructions = parseHistorical(splits, "split", startDateTime, endDateTime)
+    instructions += parseHistorical(dividends, "dividend", startDateTime, endDateTime)    
+    instructions = sorted(instructions, key = lambda i: i['date'])
+
+    shares = 1
+    dividends = 0
+    for i in instructions:
+        if(i["type"] == "split"):
+            shares *= i["amount"]
+        elif(i["type"] == "dividend"):
+            dividends += i["amount"]*shares
+        else:
+            print("Unknown instruction type")
+
+    return endPrice*shares+dividends
