@@ -72,13 +72,14 @@ def assessModel(modelName, data, currentDate, futureDate, benchmark):
         symbol = symbols[i]
         proportion = weights[i]/weightTotal
         shares=0
-        if(not currentPrice == None):
+        try:
             shares = int(investment*proportion/currentPrice)
+        except:
+            shares=0
         
         if(shares>0):
-            ret = utils.getSymbolReturn(symbol, futurePrice, currentDate, futureDate)
-            print("Bought "+str(shares)+" shares of "+str(symbol)+" at "+str(currentPrice)+" each and sold at "+str(futurePrice)+" each, profiting "+str(ret-currentPrice)+" per share after splits and dividends")
-            cashout += (ret-currentPrice)*shares
+            print("Bought "+str(shares)+" shares of "+str(symbol)+" at "+str(currentPrice)+" each, returning "+str(futurePrice)+" after splits and dividends")
+            cashout += (futurePrice-currentPrice)*shares
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 

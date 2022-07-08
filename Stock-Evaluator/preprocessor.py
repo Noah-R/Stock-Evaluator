@@ -1,40 +1,6 @@
 import pandas as pd
 import utils
 
-def parseFinancialStatement(symbol, statement, startYear = 1970, endYear = 2039):
-    """Reads financial statement data from a fetched file between two given years
-
-    :param symbol: Stock symbol to parse data for
-    :type symbol: str
-    :param statement: Financial statement to read features from
-    :type statement: str
-    :param startYear: First year to include features from, defaults to 1970
-    :type startYear: int, optional
-    :param endYear: Last year to include features from, defaults to 2039
-    :type endYear: int, optional
-    :return: Single-row DataFrame, containing values of each feature for each year
-    :rtype: pandas.DataFrame
-    """
-    fileName = "Stock-Evaluator/API Archives/"+symbol+"_"+statement+".json"
-    df = pd.read_json(fileName)
-
-    dropCols = ["date", "reportedCurrency", "cik", "fillingDate", "acceptedDate", "period", "link", "finalLink"]
-    df.drop(labels = dropCols, axis = 1, inplace = True)
-
-    df = df[df["calendarYear"]<=endYear]
-    df = df[df["calendarYear"]>=startYear]
-    df["calendarYear"] = df["calendarYear"].astype("int64")
-    df = df.drop_duplicates('calendarYear')
-
-    df = df.melt(id_vars=["symbol", "calendarYear"])
-
-    df["column"] = "y"+(df["calendarYear"]-endYear).astype(str)+"_"+statement+"_"+df["variable"]
-    df.drop(labels = ["calendarYear", "variable"], axis = 1, inplace = True)
-
-    df = pd.pivot(df, index="symbol", columns="column", values="value")
-
-    return df
-
 def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], excludeFromNormalization = []):
     """Performs final preprocessing transformations on assembled dataset
 
@@ -91,7 +57,7 @@ def buildPeriodDataset(symbols, features, startYear, endYear, startDate, targetD
         rowdf["price"] = [utils.getSymbolReturn(symbol, price, startDate, targetDate)]
 
         for statement in features:
-            statementdf = parseFinancialStatement(symbol, statement, startYear, endYear)
+            statementdf = utils.parseFinancialStatement(symbol, statement, startYear, endYear)
 
             rowdf = rowdf.merge(statementdf, how='outer', on='symbol')   
 
