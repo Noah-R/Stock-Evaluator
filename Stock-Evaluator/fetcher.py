@@ -1,5 +1,6 @@
 import urllib3
 import os
+import time
 
 def fetchFile(url, fileName, http):
     """Handles a single request to the FinancialModelingPrep API and writes the result to a file
@@ -48,9 +49,9 @@ def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999, confirm
             fileName = "Stock-Evaluator/API Archives/"+symbol+"_"+name+".json"
 
             if(overwrite or not os.path.exists(fileName)):
-                if(filesWritten == limit):
-                    print("could not fetch "+str(url))
-                    return -1
+                if(filesWritten % limit == 0 and filesWritten>0):
+                    print(str(filesWritten)+" requests so far, waiting for more")
+                    time.sleep(60.1)
                 if(not confirmEach or input("Enter y to request the following URL: "+url) == "y"):
                     fetchFile(url, fileName, http)
                     filesWritten+=1

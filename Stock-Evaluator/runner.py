@@ -7,7 +7,7 @@ import pandas as pd
 import datetime
 import os
 
-APIlimit = 250
+APIlimit = 300
 confirms = False
 timePeriods = [
     {"startDate": "2020-01-02", "endDate": "2020-06-01", "startYear": 2018, "endYear": 2019},
