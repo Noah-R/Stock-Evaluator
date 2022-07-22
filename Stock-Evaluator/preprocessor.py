@@ -16,7 +16,7 @@ def prepareForTraining(df, coefficient = 1000000, requiredColumns = [], excludeF
     :rtype: pandas.DataFrame
     """
     df = df.dropna(subset = requiredColumns)
-    df = df.dropna(thresh = 3)
+    df = df.dropna(thresh = len(df.keys())-3)
     df = df.fillna(value = 0)
 
     for column in df.keys():
@@ -60,9 +60,9 @@ def buildPeriodDataset(symbols, features, startYear, endYear, startDate, targetD
             statementdf = utils.parseFinancialStatement(symbol, statement, startYear, endYear)
 
             rowdf = rowdf.merge(statementdf, how='outer', on='symbol')   
-
-        df = pd.concat([df, rowdf])
         
+        df = pd.concat([df, rowdf])
+
     return df
 
 def buildDataset(symbols, features, timePeriods, debug = False):

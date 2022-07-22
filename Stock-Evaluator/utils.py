@@ -149,17 +149,17 @@ def getSymbolReturn(symbol, endPrice, startDate, endDate):
 
     return endPrice*shares+dividends
 
-def parseFinancialStatement(symbol, statement, startYear = 1970, endYear = 2039):
+def parseFinancialStatement(symbol, statement, startYear, endYear):
     """Reads financial statement data from a fetched file between two given years
 
     :param symbol: Stock symbol to parse data for
     :type symbol: str
     :param statement: Financial statement to read features from
     :type statement: str
-    :param startYear: First year to include features from, defaults to 1970
-    :type startYear: int, optional
-    :param endYear: Last year to include features from, defaults to 2039
-    :type endYear: int, optional
+    :param startYear: First year to include features from
+    :type startYear: int
+    :param endYear: Last year to include features from
+    :type endYear: int
     :return: Single-row DataFrame, containing values of each feature for each year
     :rtype: pandas.DataFrame
     """
