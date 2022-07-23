@@ -18,7 +18,7 @@ def fetchFile(url, fileName, http):
     target.write(r.data.decode('utf8'))
     target.close()
 
-def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999, confirmEach = False):
+def fetchEndpoints(symbols, queries, overwrite = False, limit = 999999999, confirmEach = False):
     """Fetches financial data from a series of endpoints for a series of stock symbols
 
     :param symbols: List of stock symbols to fetch data for
@@ -37,6 +37,7 @@ def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999, confirm
     apikey = open("Stock-Evaluator/apikey.txt", "r").read()
     http = urllib3.PoolManager()
     filesWritten = 0
+    filesToWrite = len(symbols)*len(queries)
 
     for symbol in symbols:
         for query in queries:
@@ -50,10 +51,14 @@ def fetchEndpoints(symbols, queries, overwrite=False, limit = 999999999, confirm
 
             if(overwrite or not os.path.exists(fileName)):
                 if(filesWritten % limit == 0 and filesWritten>0):
-                    print(str(filesWritten)+" requests so far, waiting for more")
-                    time.sleep(60.1)
+                    print("Waiting for more requests\n"+str(filesToWrite)+" requests remaining to attempt\n"+str(filesWritten)+" requests so far\n"+str(int((filesToWrite+limit-1)/limit))+" minutes remaining")
+                    time.sleep(61-(.1*limit))
                 if(not confirmEach or input("Enter y to request the following URL: "+url) == "y"):
                     fetchFile(url, fileName, http)
+                    print("fetched "+url)
                     filesWritten+=1
+                    time.sleep(.1)
+
+            filesToWrite -= 1
     
     return filesWritten

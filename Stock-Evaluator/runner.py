@@ -8,6 +8,7 @@ import datetime
 import os
 
 APIlimit = 300
+overwrite = True
 confirms = False
 timePeriods = [
     {"startDate": "2012-01-02", "endDate": "2012-06-01", "startYear": 2009, "endYear": 2011},
@@ -63,7 +64,7 @@ adjustments = ['splits', 'dividends']
 
 
 if(input("Input 0 to skip attempting "+str((len(symbols)+len(benchmarks))*len(queries))+" API requests") !="0"):
-    result = fetcher.fetchEndpoints(symbols+benchmarks, queries, limit = APIlimit, confirmEach = confirms)
+    result = fetcher.fetchEndpoints(symbols+benchmarks, queries, overwrite = overwrite, limit = APIlimit, confirmEach = confirms)
     print("Successfully wrote "+str(result)+" files")
 
 if(input("Input 0 to skip building training set(Rebuilding the dataset after training the model will lead to in-sample predictions)") !="0"):
