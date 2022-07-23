@@ -50,6 +50,8 @@ def buildPeriodDataset(symbols, features, startYear, endYear, startDate, targetD
     for symbol in symbols:
         rowdf = pd.DataFrame()
         rowdf["symbol"] = [symbol]
+        rowdf["startYear"] = [startYear]
+        rowdf["endYear"] = [endYear]
 
         price = utils.parsePrice(symbol, targetDate)
         if(price == None):
@@ -86,7 +88,7 @@ def buildDataset(symbols, features, timePeriods, debug = False):
         masterdf = pd.concat([masterdf, perioddf])
     
     if (not debug):
-        exclude = ["symbol", "price"]
+        exclude = ["symbol", "startYear", "endYear", "price"]
         masterdf = prepareForTraining(masterdf, requiredColumns = exclude, excludeFromNormalization = exclude)
 
     return masterdf
