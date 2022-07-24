@@ -8,8 +8,9 @@ import datetime
 import os
 
 APIlimit = 300
-overwrite = True
+overwrite = False
 confirms = False
+#todo: standardize time period by endYear/length, startYear = endYear-length, startDate 1/1, endDate 7/4
 timePeriods = [
     {"startDate": "2012-01-02", "endDate": "2012-06-01", "startYear": 2009, "endYear": 2011},
     {"startDate": "2013-01-02", "endDate": "2013-06-01", "startYear": 2010, "endYear": 2012},

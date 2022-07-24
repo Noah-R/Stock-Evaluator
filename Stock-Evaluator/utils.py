@@ -108,7 +108,10 @@ def parseHistorical(fileName, type, startDateTime = datetime.date(1970, 1, 1), e
                 if(type == "split"):
                     instructions.append({"type": "split", "date": i["date"], "amount": i["numerator"]/i["denominator"]})
                 elif(type == "dividend"):
-                    instructions.append({"type": "dividend", "date": i["date"], "amount": i["dividend"]})
+                    try:
+                        instructions.append({"type": "dividend", "date": i["date"], "amount": i["dividend"]})#todo: switch to adjDividend?
+                    except:
+                        print(fileName+" has damaged dividend on "+i["date"])
                 else:
                     print("Unknown instruction type")
     return instructions
