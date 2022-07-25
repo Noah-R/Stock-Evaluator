@@ -43,7 +43,7 @@ features = ['balance_sheet', 'income_statement', 'cash_flow']
 debug = False
 
 target = "price"
-learningrate = .0001
+learningrate = .00001
 batchsize = 512
 epochs = 100
 l2rate = .00015

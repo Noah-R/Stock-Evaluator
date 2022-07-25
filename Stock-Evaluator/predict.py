@@ -63,7 +63,7 @@ def assessModel(modelName, data, currentDate, futureDate, benchmark):
     weights = getWeights(preds, currentPrices)
     weightTotal = sum(weights)
 
-    investment = 10000
+    investment = 50000
     cashout = investment
 
     for i in range(len(preds)):
@@ -78,7 +78,7 @@ def assessModel(modelName, data, currentDate, futureDate, benchmark):
             shares=0
         
         if(shares>0):
-            print("Bought "+str(shares)+" shares of "+str(symbol)+" at "+str(currentPrice)+" each, returning "+str(futurePrice)+" after splits and dividends")
+            print("Bought "+str(shares)+" shares of "+str(symbol)+" at "+str(currentPrice)+" each, returning "+str(round(futurePrice, 2))+" after splits and dividends")
             cashout += (futurePrice-currentPrice)*shares
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
