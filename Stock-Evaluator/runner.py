@@ -12,17 +12,17 @@ overwrite = False
 confirms = False
 #todo: standardize time period by endYear/length, startYear = endYear-length, startDate 1/1, endDate 7/4
 timePeriods = [
-    {"startDate": "2012-01-02", "endDate": "2012-06-01", "startYear": 2009, "endYear": 2011},
-    {"startDate": "2013-01-02", "endDate": "2013-06-01", "startYear": 2010, "endYear": 2012},
-    {"startDate": "2014-01-02", "endDate": "2014-06-01", "startYear": 2011, "endYear": 2013},
-    {"startDate": "2015-01-02", "endDate": "2015-06-01", "startYear": 2012, "endYear": 2014},
-    {"startDate": "2016-01-04", "endDate": "2016-06-01", "startYear": 2013, "endYear": 2015},
-    {"startDate": "2017-01-02", "endDate": "2017-06-01", "startYear": 2014, "endYear": 2016},
-    {"startDate": "2018-01-02", "endDate": "2018-06-01", "startYear": 2015, "endYear": 2017},
-    {"startDate": "2019-01-02", "endDate": "2019-06-01", "startYear": 2016, "endYear": 2018},
-    {"startDate": "2020-01-02", "endDate": "2020-06-01", "startYear": 2017, "endYear": 2019},
-    {"startDate": "2021-01-04", "endDate": "2021-06-01", "startYear": 2018, "endYear": 2020},
-    {"startDate": "2022-01-03", "endDate": "2022-06-01", "startYear": 2019, "endYear": 2021}
+    {"startDate": "2012-07-26", "endDate": "2012-12-31", "startYear": 2009, "endYear": 2011},
+    {"startDate": "2013-07-26", "endDate": "2013-12-31", "startYear": 2010, "endYear": 2012},
+    {"startDate": "2014-07-26", "endDate": "2014-12-31", "startYear": 2011, "endYear": 2013},
+    {"startDate": "2015-07-26", "endDate": "2015-12-31", "startYear": 2012, "endYear": 2014},
+    {"startDate": "2016-07-26", "endDate": "2016-12-31", "startYear": 2013, "endYear": 2015},
+    {"startDate": "2017-07-26", "endDate": "2017-12-31", "startYear": 2014, "endYear": 2016},
+    {"startDate": "2018-07-26", "endDate": "2018-12-31", "startYear": 2015, "endYear": 2017},
+    {"startDate": "2019-07-26", "endDate": "2019-12-31", "startYear": 2016, "endYear": 2018},
+    {"startDate": "2020-07-26", "endDate": "2020-12-31", "startYear": 2017, "endYear": 2019},
+    {"startDate": "2021-07-26", "endDate": "2021-12-31", "startYear": 2018, "endYear": 2020},
+    {"startDate": "2022-07-26", "endDate": "2022-12-31", "startYear": 2019, "endYear": 2021}
 ]
 symbols = utils.readSymbols('Stock-Evaluator/symbols.txt')
 benchmarks = ["VTSAX"]

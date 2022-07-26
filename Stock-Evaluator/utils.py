@@ -66,7 +66,12 @@ def parsePrice(symbol, date):
     :rtype: int
     """
     fileName = "Stock-Evaluator/API Archives/"+symbol+"_price_"+date+".json"
-    df = pd.read_json(fileName)
+    #todo: try to resolve error
+    try:
+        df = pd.read_json(fileName)
+    except:
+        print(fileName+" cannot be read into a DataFrame")
+        return None
 
     if("historical" in df):
         return df["historical"].apply(lambda x: round(x["close"], 2))[0]

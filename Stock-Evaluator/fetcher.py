@@ -62,3 +62,5 @@ def fetchEndpoints(symbols, queries, overwrite = False, limit = 999999999, confi
             filesToWrite -= 1
     
     return filesWritten
+
+#todo: try to replace bad gateways/ratelimited

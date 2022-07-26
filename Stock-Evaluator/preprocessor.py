@@ -54,9 +54,11 @@ def buildPeriodDataset(symbols, features, startYear, endYear, startDate, targetD
         rowdf["endYear"] = [endYear]
 
         price = utils.parsePrice(symbol, targetDate)
+        #todo: debug this if/else through full workflow
         if(price == None):
-            continue
-        rowdf["price"] = [utils.getSymbolReturn(symbol, price, startDate, targetDate)]
+            rowdf["price"] = 0
+        else:
+            rowdf["price"] = [utils.getSymbolReturn(symbol, price, startDate, targetDate)]
 
         for statement in features:
             statementdf = utils.parseFinancialStatement(symbol, statement, startYear, endYear)

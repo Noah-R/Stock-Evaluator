@@ -62,6 +62,8 @@ def assessModel(modelName, data, currentDate, futureDate, benchmark):
     preds = model.predict(x=features, verbose=1)
     weights = getWeights(preds, currentPrices)
     weightTotal = sum(weights)
+    if(weightTotal == 0):
+        weightTotal = 1#todo: decide how to handle all weights 0
 
     investment = 50000
     cashout = investment
