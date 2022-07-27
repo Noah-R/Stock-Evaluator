@@ -79,13 +79,15 @@ def assessModel(modelName, data, currentDate, futureDate, benchmark):
         except:
             shares=0
         
-        if(shares>0):
-            print("Bought "+str(shares)+" shares of "+str(symbol)+" at "+str(currentPrice)+" each, returning "+str(round(futurePrice, 2))+" after splits and dividends")
+        if(shares>0):#todo: parameter for retrospective vs actual future
+            print("Bought "+str(shares)+" shares of "+str(symbol)+" at "+str(currentPrice)+" each")#, returning "+str(round(futurePrice, 2))+" after splits and dividends")
             cashout += (futurePrice-currentPrice)*shares
 
     print("Model percent return: "+str(round(100*(cashout/investment-1), 2)))
 
     mktEnd = utils.parsePrice(benchmark, futureDate)
+    if(mktEnd == None):#todo handle price does not exist
+        mktEnd = 0
     mktStart = utils.parsePrice(benchmark, currentDate)
     mktReturn = utils.getSymbolReturn(benchmark, mktEnd, currentDate, futureDate)
     print("Market percent return: "+str(round(100*(mktReturn/mktStart-1), 2)))

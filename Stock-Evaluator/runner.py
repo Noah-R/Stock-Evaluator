@@ -33,7 +33,7 @@ queries = [
     {"endpoint":"historical-price-full/stock_split", "params":"", "name":"splits"},
     {"endpoint":"historical-price-full/stock_dividend", "params":"", "name":"dividends"}
     ]
-for period in timePeriods:
+for period in timePeriods[:-1]:#todo: timePeriods for retrospective prediction, timePeriods[:-1] for actual future predictions
     date = period["endDate"]
     queries.append({"endpoint":"historical-price-full", "params":"from="+date+"&to="+date, "name":"price_"+date})
 date = timePeriods[-1]["startDate"]
